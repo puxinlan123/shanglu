@@ -1,4 +1,8 @@
 _backup/
+_playthrough/
+_shots*/
+_dl_goods.py
+_preview.html
 data.json
 *.log
 
