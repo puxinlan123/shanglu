@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商路大亨</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230e2438'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23d6b45a' stroke-width='2.5'/%3E%3Cpath d='M16 7v18M10 12l6 4 6-4M10 20l6-4 6 4' stroke='%23d6b45a' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* ============ 基础与配色 ============ */
+:root{
+  --bg0:#0a1723; --bg1:#0e2438; --bg2:#143349;
+  --gold:#d6b45a; --gold-hi:#f0d78c; --gold-dim:#9c8547; --gold-line:rgba(214,180,90,.38);
+  --paper:#f1e5c4; --paper2:#e7d6ab; --ink:#33240f; --ink2:#6b5636;
+  --up:#c23b2e; --down:#2e7d5b; --flat:#8a7f6a;
+  --serif:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+  --sans:'Noto Sans SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:var(--sans); color:var(--paper);
+  background:
+    linear-gradient(160deg, rgba(10,18,38,.82) 0%, rgba(8,14,30,.88) 45%, rgba(6,11,24,.92) 100%),
+    url('assets/bg.jpg') center/cover fixed,
+    radial-gradient(1200px 600px at 85% -10%, rgba(38,84,120,.45), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(27,60,86,.55), transparent 60%);
+  min-height:100vh; font-size:15px; line-height:1.5;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(115deg, rgba(255,255,255,.015) 0 2px, transparent 2px 7px);}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 14px 40px;position:relative}
+button{font-family:var(--sans);cursor:pointer}
+.fs{font-family:var(--serif)}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums}
+
+/* ============ 通用组件 ============ */
+.panel{background:linear-gradient(180deg,#f4e8c8,#ecdcb0);color:var(--ink);
+  border:1px solid var(--gold-dim);border-radius:14px;position:relative;
+  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.5);}
+.panel::before,.panel::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none}
+.panel::before{top:6px;left:6px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);border-radius:3px 0 0 0}
+.panel::after{bottom:6px;right:6px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);border-radius:0 0 3px 0}
+.panel h3{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.panel h3 .seal{display:inline-block;font-size:11px;letter-spacing:2px;color:var(--gold-hi);
+  background:var(--ink);border-radius:4px;padding:2px 7px;font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;
+  padding:8px 16px;border-radius:10px;border:1px solid var(--gold-dim);font-weight:700;font-size:15px;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;user-select:none}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-gold{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--ink);
+  box-shadow:0 4px 14px rgba(214,180,90,.35)}
+.btn-gold:hover{filter:brightness(1.07)}
+.btn-ghost{background:rgba(214,180,90,.08);color:var(--gold-hi);border-color:var(--gold-line)}
+.btn-ghost:hover{background:rgba(214,180,90,.18)}
+.btn-dark{background:var(--ink);color:var(--gold-hi);border-color:var(--gold-dim)}
+.btn-dark:hover{filter:brightness(1.25)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+.btn:disabled:active{transform:none}
+.btn-lg{min-height:52px;font-size:17px;padding:10px 26px}
+.btn-sm{min-height:40px;font-size:13px;padding:6px 12px}
+
+/* ============ 开场视图 ============ */
+#view-start{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 10px 10px}
+#view-start.hidden,#view-game.hidden{display:none}
+.title-wrap{position:relative;margin-bottom:6px}
+.compass{width:96px;height:96px;margin:0 auto 10px;object-fit:contain;-webkit-mask-image:radial-gradient(circle at center, black 66%, transparent 68%);mask-image:radial-gradient(circle at center, black 66%, transparent 68%);filter:drop-shadow(0 0 12px rgba(214,180,90,.5));animation:spin 30s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.compass{animation:none}}
+.h1{font-family:var(--serif);font-weight:900;font-size:44px;letter-spacing:10px;line-height:1.1;
+  background:linear-gradient(180deg,var(--gold-hi) 30%,var(--gold) 70%,#8a6f33);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 6px 24px rgba(0,0,0,.5)}
+.sub{margin-top:10px;color:var(--gold-line);letter-spacing:4px;font-size:14px}
+.start-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px;margin:26px auto 22px}
+.scard{background:rgba(214,180,90,.06);border:1px solid var(--gold-line);border-radius:12px;padding:12px 10px}
+.scard b{display:block;font-family:var(--serif);font-size:18px;color:var(--gold-hi);letter-spacing:2px}
+.scard span{font-size:12.5px;color:var(--gold-line)}
+.start-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px}
+.start-actions .btn{width:100%}
+.rule-note{margin-top:22px;max-width:640px;font-size:12.5px;color:var(--gold-line);line-height:1.8}
+.deco-ship{position:fixed;right:-30px;bottom:-26px;width:190px;opacity:.10;pointer-events:none}
+
+/* 钱袋与场次 */
+.wallet-bar{margin:4px auto 0;display:flex;align-items:baseline;gap:12px;justify-content:center;flex-wrap:wrap;
+  background:rgba(214,180,90,.08);border:1px solid var(--gold-line);border-radius:12px;padding:11px 20px;max-width:560px;width:100%}
+.wallet-lab{color:var(--gold-dim);letter-spacing:2px;font-size:13px}
+.wallet-val{font-family:var(--serif);font-weight:900;font-size:26px;color:var(--gold-hi);line-height:1}
+.wallet-hint{font-size:11.5px;color:var(--gold-dim)}
+.table-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:860px;margin:20px auto 16px}
+@media(max-width:760px){.table-cards{grid-template-columns:1fr}}
+.resume-bar{max-width:860px;margin:14px auto 0;background:rgba(194,59,46,.12);border:1px solid rgba(214,180,90,.5);border-radius:12px;padding:10px 16px}
+.resume-inner{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.resume-tip{font-size:13px;color:var(--gold-hi);letter-spacing:1px}
+.tcard{background:rgba(214,180,90,.06);border:1px solid var(--gold-line);border-radius:12px;padding:12px 12px 10px;display:flex;flex-direction:column;gap:5px}
+.tcard.disabled{opacity:.55}
+.tcard-top{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.tcard-top b{font-family:var(--serif);font-size:18px;color:var(--gold-hi);letter-spacing:2px}
+.tcard-tag{font-size:11px;color:var(--gold-dim);letter-spacing:1px}
+.tcard-line{font-size:12.5px;color:var(--gold-line)}
+.tcard-line b{color:var(--paper);font-family:var(--serif);font-size:13.5px}
+.tcard-needs{font-size:11.5px;color:var(--gold-dim);margin-top:1px}
+.tcard-btn{margin-top:9px;width:100%}
+.tag-spec{font-size:10px;color:#fff;font-weight:700;background:#9a7d3f;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px;letter-spacing:1px}
+
+/* 城市横幅 */
+.city-banner{border-radius:10px;overflow:hidden;margin-bottom:10px;position:relative;border:1px solid var(--gold-line);background:#1a1408}
+.city-banner img{width:100%;height:auto;display:block;max-height:180px;object-fit:cover;animation:kenburns 12s ease-in-out infinite alternate}
+@keyframes kenburns{0%{transform:scale(1)}100%{transform:scale(1.08) translateX(-1%)}}
+.city-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(20,14,4,.75))}
+.city-name{position:absolute;left:14px;bottom:8px;font-family:var(--serif);font-size:22px;font-weight:900;color:#f5e6c0;text-shadow:0 2px 6px rgba(0,0,0,.7);letter-spacing:2px}
+.info-ico{margin-left:auto;width:16px;height:16px;border-radius:50%;background:#9a7d3f;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-style:italic;flex:none}
+.good-detail{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.good-detail img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:none;border:1px solid var(--gold-line)}
+.gd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.gd-stat{background:rgba(214,180,90,.08);border:1px solid var(--gold-line);border-radius:8px;padding:10px;text-align:center}
+.gd-stat .k{font-size:11px;color:#8a7a5a;margin-bottom:4px}
+.gd-stat .v{font-size:16px;font-weight:700;color:#3a2f1a}
+.gd-stat .v.hi{color:#a83232}
+.gd-stat .v.lo{color:#3a7a4a}
+
+/* 赶路过场动画 */
+#transition{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;opacity:0;pointer-events:none;transition:opacity .35s;overflow:hidden}
+#transition.show{opacity:1;pointer-events:auto}
+.t-bg{position:absolute;inset:0;transition:background 1s}
+.t-caravan{position:relative;z-index:1;width:280px;height:140px;border-radius:10px;overflow:hidden;border:1px solid rgba(240,210,120,.4);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.t-caravan img{width:200%;height:100%;object-fit:cover;animation:pan 3s linear infinite}
+@keyframes pan{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.t-compass{position:relative;width:60px;height:60px;animation:spin 1.2s linear infinite;z-index:1;opacity:.9}
+.t-compass img{width:100%;height:100%;object-fit:contain;-webkit-mask-image:radial-gradient(circle at center, black 66%, transparent 68%);mask-image:radial-gradient(circle at center, black 66%, transparent 68%)}
+.t-mount{position:relative;z-index:1;font-size:48px;animation:gallop .4s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.t-mount svg{width:60px;height:60px}
+.t-road{position:relative;z-index:1;font-size:13px;color:#e8d8b0;letter-spacing:6px;opacity:.8}
+.t-city{position:relative;z-index:1;font-family:var(--serif);font-size:34px;font-weight:900;color:#f5e6c0;letter-spacing:4px;opacity:0;transform:translateY(14px);text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#transition.show .t-city{opacity:1;transform:translateY(0);transition:all .5s .4s}
+.t-tag{position:relative;z-index:1;font-size:12px;color:#d8c89a;opacity:0;transition:opacity .5s .7s}
+#transition.show .t-tag{opacity:.9}
+@keyframes gallop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero-float{position:fixed;right:6px;bottom:6px;z-index:40;cursor:pointer;text-align:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,.6));opacity:.85}
+.hero-row{display:flex;align-items:flex-end;gap:4px}
+.hero-float img#hero-img{height:120px;width:auto;object-fit:contain;transition:filter .3s;animation:gallop 1.2s ease-in-out infinite}
+.hero-float img#hero-mount{height:60px;width:auto;object-fit:contain;animation:gallop 1.2s ease-in-out infinite}
+.hero-name{font-size:11px;color:var(--gold-hi);font-family:var(--serif);background:rgba(20,16,8,.7);padding:2px 10px;border-radius:8px;margin-top:-4px;display:inline-block}
+.zoom-hint{position:absolute;top:-2px;right:-2px;font-size:9.5px;background:rgba(20,16,8,.75);color:#e6c87e;padding:2px 7px;border-radius:6px;pointer-events:none;letter-spacing:1px;border:1px solid rgba(214,180,90,.4)}
+.viewer-in{max-width:660px}
+.viewer-name{font-family:var(--serif);font-weight:900;font-size:20px;color:var(--gold-hi);text-align:center;letter-spacing:3px}
+.viewer-stage{perspective:1200px;height:min(64vh,540px);margin-top:10px;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(214,180,90,.16),rgba(20,16,8,.65));border:1px solid var(--gold-line);
+  border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}
+.viewer-stage:active{cursor:grabbing}
+#viewer-img{max-width:92%;max-height:92%;object-fit:contain;transform-style:preserve-3d;will-change:transform;filter:drop-shadow(0 22px 34px rgba(0,0,0,.6))}
+.viewer-tip{font-size:11.5px;color:var(--gold-dim);text-align:center;margin-top:7px;letter-spacing:1px}
+.skin-thumb,.mount-thumb{transition:transform .25s}
+.skin-thumb:hover,.mount-thumb:hover{transform:scale(1.08)}
+@media(max-width:760px){.hero-float img#hero-img{height:80px}.hero-float img#hero-mount{height:40px}}
+
+/* 成就罗盘 */
+.skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:12px}
+.skin-card{background:rgba(214,180,90,.08);border:1px solid var(--gold-line);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.skin-card.eq{border-color:var(--gold-hi);box-shadow:0 0 0 1px var(--gold-hi) inset}
+.skin-card.locked{opacity:.65}
+.skin-dot{width:26px;height:26px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.25) inset}
+.skin-card b{font-family:var(--serif);font-size:14px;color:#3a2f1a}
+.skin-state{font-size:11px;color:#6b5636}
+.skin-state.lock{color:#8a7a5a}
+.skin-prog{width:100%;height:4px;background:rgba(0,0,0,.15);border-radius:2px;overflow:hidden;margin-top:2px}
+.skin-prog div{height:100%;background:var(--gold-hi);border-radius:2px}
+.btn-sm{padding:4px 12px;font-size:12px}
+.mount-title{margin:16px 0 8px;font-family:var(--serif);font-size:16px;color:var(--gold-hi);border-top:1px dashed var(--gold-line);padding-top:12px}
+.skin-name2{font-family:var(--serif);font-size:15px;color:#3a2f1a;font-weight:700}
+.unlock-banner{margin:10px 0 2px;padding:9px 14px;background:rgba(214,180,90,.16);border:1px solid var(--gold-hi);border-radius:8px;font-size:13px;color:var(--gold-hi);text-align:center}
+.unlock-banner[hidden]{display:none}
+
+/* 钻石与商店 */
+.wallet-dia{margin-left:8px;color:#7fd4ff;font-weight:700;font-size:16px}
+.dia-num{color:#5fc8f0;font-weight:700}
+.dia-line{margin:8px 0 2px;text-align:center;font-size:13px;color:#9ab;padding-top:8px;border-top:1px dashed rgba(255,255,255,.12)}
+.title-prog{margin-top:8px;text-align:center;font-size:12px;color:#8a7a5a;line-height:1.6}
+.shop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(214,180,90,.08);border:1px solid var(--gold-line);border-radius:10px;padding:12px;margin-bottom:8px}
+.hall-tabs{display:flex;gap:8px;margin:10px 0 2px}
+.hall-tab{border:1px solid var(--gold-dim)!important;color:var(--ink2)!important}
+.hall-tab.on{background:rgba(214,180,90,.25)!important;color:var(--gold-hi)!important;border-color:var(--gold)!important}
+.hall-row{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px dashed rgba(154,125,63,.25)}
+.hall-row.locked .hall-icon{filter:grayscale(1) brightness(.55);opacity:.7}
+.hall-icon{width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(214,180,90,.12);border:1px solid var(--gold-dim);border-radius:10px;overflow:hidden}
+.hall-icon img{width:100%;height:100%;object-fit:cover}
+.hall-info{flex:1;min-width:0}
+.hall-info b{font-family:var(--serif);font-size:14.5px;color:var(--ink);display:block;margin-bottom:2px}
+.hall-state{font-size:11.5px;color:var(--ink2);font-weight:600;text-align:right;flex:none;max-width:130px}
+.map-row{background:rgba(214,180,90,.07);border:1px solid var(--gold-line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.map-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.map-head b{font-family:var(--serif);font-size:14.5px;color:var(--ink)}
+.shop-row.eq{border-color:var(--gold-hi);background:rgba(240,210,120,.18);box-shadow:0 0 0 2px var(--gold-hi) inset}
+.shop-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.shop-info b{font-family:var(--serif);color:var(--paper);font-size:15px}
+.shop-desc{font-size:12px;color:#9a8a6a;line-height:1.4}
+.shop-buy{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.shop-owned{font-size:11px;color:#9a8a6a}
+.item-row{display:flex;gap:8px;margin-top:10px}
+.btn-item{flex:1;font-size:13px;padding:9px 6px;background:rgba(95,200,240,.12);border:1px solid #5fc8f0;color:#7fd4ff}
+.btn-item:disabled{opacity:.4;cursor:not-allowed}
+.peek-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px dashed rgba(0,0,0,.1)}
+.peek-icon{width:30px;height:30px;border-radius:50%;overflow:hidden;flex:none}
+.peek-icon img{width:100%;height:100%;object-fit:cover}
+.peek-name{flex:1;font-size:14px;color:#3a2f1a}
+.peek-price{color:#8a6a2a;font-weight:700}
+
+/* ============ 顶栏 ============ */
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-bottom:12px}
+.chip{display:flex;align-items:center;gap:7px;background:rgba(14,36,56,.75);border:1px solid var(--gold-line);
+  border-radius:12px;padding:7px 12px;min-height:46px;font-size:13.5px}
+.chip svg{width:17px;height:17px;flex:none}
+.chip .lab{color:var(--gold-dim);letter-spacing:1px;font-size:12px}
+.chip .val{font-weight:700;color:var(--gold-hi)}
+.chip .val.num{font-size:16px}
+.chip.city{flex:1;min-width:150px;justify-content:space-between;gap:4px}
+.chip.city .cityname{font-family:var(--serif);font-weight:900;font-size:17px;letter-spacing:3px;color:var(--gold-hi)}
+.home-link{margin-left:auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;
+  color:var(--gold-dim);font-size:13px;text-decoration:none;border-radius:8px}
+.home-link:hover{color:var(--gold-hi);background:rgba(214,180,90,.1)}
+.goalbar{margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tut-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(214,180,90,.1);
+  border:1px solid var(--gold-line);border-radius:12px;padding:10px 16px;margin:0 0 14px;font-size:12.5px;color:var(--paper)}
+.tut-item{line-height:1.6}
+.tut-item b{color:var(--gold-hi)}
+.goalbar .gtext{font-size:12.5px;color:var(--gold-line);letter-spacing:1px}
+.goalbar .track{flex:1;min-width:140px;height:12px;border-radius:8px;background:rgba(255,255,255,.08);
+  border:1px solid var(--gold-line);overflow:hidden}
+.goalbar .fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#a8872f,var(--gold-hi));
+  transition:width .5s ease;min-width:2px}
+.goalbar .fill.over{background:linear-gradient(90deg,#c23b2e,var(--gold-hi));box-shadow:0 0 10px rgba(194,59,46,.7)}
+.goalbar .gval.num{color:var(--gold-hi);font-weight:700;font-size:13.5px}
+
+/* ============ 版面 ============ */
+.board{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.board{grid-template-columns:1.15fr .85fr;align-items:start}}
+.col{display:flex;flex-direction:column;gap:12px}
+.panel{padding:14px}
+.qtyrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.qtyrow .qtitle{font-size:12.5px;color:var(--ink2)}
+.qtybtn{min-height:36px;padding:5px 13px;border-radius:8px;border:1px solid var(--gold-dim);
+  background:rgba(214,180,90,.14);color:var(--ink);font-weight:700;font-size:13px}
+.qtybtn.on{background:var(--ink);color:var(--gold-hi);border-color:var(--ink)}
+
+/* 市场卡片 */
+.market-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+@media (min-width:560px){.market-grid{grid-template-columns:repeat(3,1fr)}}
+.good-card{background:linear-gradient(180deg,#fdf6e2,#f0e2bb);border:1px solid #cbb47c;border-radius:12px;
+  padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.good-head{display:flex;align-items:center;gap:8px}
+.good-icon{width:38px;height:38px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#18344e,#0e2438);
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--gold-line)}
+.good-icon svg{width:22px;height:22px;color:var(--gold-hi)}
+.good-icon .good-img{width:100%;height:100%;object-fit:cover;display:block}
+.good-name{font-family:var(--serif);font-weight:700;font-size:15px;color:var(--ink);line-height:1.2}
+.good-price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.good-price .p{font-family:var(--serif);font-size:19px;font-weight:900;color:var(--ink)}
+.good-price .c{font-size:11.5px;color:var(--ink2)}
+.hold-line{font-size:11px;color:var(--ink2);margin:4px 0 6px;line-height:1.5}
+.hold-line b{color:var(--ink)}
+.good-act{margin-top:auto}
+.good-act .btn{width:100%;min-height:42px;font-size:14px}
+
+/* 货舱 */
+.cargo-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:440px;overflow:auto;padding-right:2px}
+.cargo-empty{color:var(--ink2);font-size:13.5px;text-align:center;padding:26px 0;line-height:1.8}
+.cargo-row{display:flex;align-items:center;gap:8px;background:#fbf3dd;border:1px solid #d9c189;border-radius:10px;padding:8px 10px;flex-wrap:wrap}
+.cargo-row .good-icon{width:32px;height:32px}
+.cargo-row .good-icon svg{width:18px;height:18px}
+.cargo-info{flex:1;min-width:110px}
+.cargo-info .n{font-weight:700;color:var(--ink);font-size:14px}
+.cargo-info .d{font-size:11.5px;color:var(--ink2)}
+.cargo-num{font-family:var(--serif);font-weight:900;font-size:17px;color:var(--ink)}
+.pl{font-size:12px;font-weight:700}
+.pl.pos{color:var(--down)}
+.pl.neg{color:var(--up)}
+.offtag{font-size:10.5px;color:var(--up);background:rgba(194,59,46,.10);border:1px solid rgba(194,59,46,.45);border-radius:5px;padding:1px 5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-left:4px;vertical-align:1px}
+.cargo-row .btn{min-height:38px;font-size:13px;padding:5px 12px}
+
+/* 情报 */
+.intel{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.intel{grid-template-columns:1fr 1fr;align-items:start}}
+.msg-today{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.msg-card{border-radius:10px;padding:9px 11px;font-size:13.5px;line-height:1.55}
+.msg-rumor{background:rgba(214,180,90,.16);border:1px dashed #b08a2e;color:var(--ink)}
+.msg-tag{display:inline-block;font-size:11px;font-weight:900;letter-spacing:1px;padding:1px 7px;border-radius:5px;margin-right:6px;vertical-align:1px}
+.msg-rumor .msg-tag{background:#b08a2e;color:#fff7e0}
+.rumor-note{font-size:11.5px;color:var(--ink2);margin-top:3px;display:block}
+.loglist{display:flex;flex-direction:column;gap:5px;margin-top:10px;max-height:230px;overflow:auto;padding-right:2px}
+.log-item{font-size:12.5px;color:var(--ink2);border-bottom:1px dashed rgba(107,86,54,.25);padding:4px 2px;line-height:1.5}
+.log-item .r{color:#9a7d3f;font-weight:700;margin-right:5px}
+.log-item.sys{color:var(--ink)}
+.log-item.bc{color:var(--ink)}
+.log-item.rm{color:#8a5a12}
+
+/* 操作区 */
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;padding:14px;justify-content:center}
+.actions .btn{flex:1;min-width:150px;max-width:300px}
+.actions .btn.settle{background:linear-gradient(180deg,#e8b95c,#c98f2d);color:#2a1c05;box-shadow:0 4px 16px rgba(201,143,45,.4)}
+
+/* ============ 模态 ============ */
+.modal{position:fixed;inset:0;background:rgba(5,12,20,.78);backdrop-filter:blur(3px);display:none;
+  align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal.open{display:flex}
+.modal-in{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:linear-gradient(180deg,#f4e8c8,#ead9ac);
+  color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:22px 20px;position:relative;
+  box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.modal-in::before{content:"";position:absolute;inset:7px;border:1px solid var(--gold-line);border-radius:12px;pointer-events:none}
+.modal-close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold-dim);
+  background:rgba(214,180,90,.15);color:var(--ink);font-size:18px;font-weight:700;z-index:2}
+.modal-close:hover{background:var(--gold)}
+.modal-title{font-family:var(--serif);font-size:21px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:4px}
+.modal-sub{text-align:center;font-size:12.5px;color:var(--ink2);letter-spacing:2px;margin-bottom:16px}
+
+/* 结算 */
+.settle-banner{text-align:center;padding:14px 8px;border-radius:12px;margin-bottom:14px;font-family:var(--serif);font-weight:900;font-size:19px;letter-spacing:3px}
+.settle-win{background:linear-gradient(180deg,#f5d78e,#e3b95c);color:#4a3206;border:1px solid #c99e45}
+.settle-lose{background:#e9dcc0;color:#7a5a28;border:1px solid #cbb47c}
+.rating{text-align:center;margin:2px 0 12px}
+.rating .rchar{display:inline-block;font-family:var(--serif);font-size:64px;font-weight:900;line-height:1;
+  background:linear-gradient(180deg,var(--gold-hi),#b78a2a);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 6px rgba(122,90,40,.35))}
+.rating .rname{display:block;font-size:13px;color:var(--ink2);letter-spacing:3px;margin-top:4px}
+.settle-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.sstat{background:rgba(214,180,90,.13);border:1px solid var(--gold-dim);border-radius:10px;padding:9px 10px;text-align:center}
+.sstat .k{font-size:11.5px;color:var(--ink2);letter-spacing:1px}
+.sstat .v{font-family:var(--serif);font-weight:900;font-size:18px;color:var(--ink);margin-top:2px}
+.trade-title{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-weight:900;font-size:13.5px;color:#8a5a12;margin:2px 0 8px;letter-spacing:1px}
+.trade-title .btn{margin-left:auto}
+.trade-scroll{max-height:220px;overflow-y:auto;border:1px solid var(--gold-dim);border-radius:8px;background:rgba(253,246,226,.6);padding:4px 8px;margin-bottom:12px}
+.trade-row{display:flex;align-items:center;gap:8px;padding:4px 2px;border-bottom:1px dashed rgba(154,125,63,.25);font-size:12.5px}
+.trade-row:last-child{border-bottom:none}
+.trade-act{font-weight:900;width:20px;flex:none}
+.trade-name{flex:1;color:var(--ink);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trade-q{color:var(--ink2);width:52px}
+.trade-p{color:var(--ink2);width:60px;text-align:right}
+.trade-amt{color:var(--ink);width:72px;text-align:right;font-weight:700}
+.name-row{display:flex;gap:8px;margin-bottom:10px}
+.name-row input{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--gold-dim);background:#fdf6e2;
+  padding:8px 12px;font-size:15px;color:var(--ink);font-family:var(--sans)}
+.name-row input:focus{outline:2px solid var(--gold)}
+.lb-title{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:2px;margin:4px 0 8px;display:flex;align-items:center;gap:8px}
+.lb-title .seal{background:var(--ink);color:var(--gold-hi);font-size:11px;padding:2px 7px;border-radius:4px}
+.lb-list{display:flex;flex-direction:column;gap:5px}
+.lb-row{display:flex;align-items:center;gap:8px;background:#fbf3dd;border:1px solid #d9c189;border-radius:8px;padding:7px 10px;font-size:13px}
+.lb-row.me{background:linear-gradient(90deg,rgba(214,180,90,.35),rgba(214,180,90,.12));border-color:var(--gold)}
+.lb-rank{width:26px;text-align:center;font-family:var(--serif);font-weight:900;font-size:15px;color:#9a7d3f;flex:none}
+.lb-rank.top{color:#c23b2e;font-size:17px}
+.lb-name{flex:1;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-score{font-family:var(--serif);font-weight:900;color:var(--ink)}
+.lb-meta{font-size:11px;color:var(--ink2);text-align:right}
+.lb-empty{text-align:center;color:var(--ink2);font-size:13px;padding:16px 0}
+.settle-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.settle-btns .btn{flex:1;min-width:130px}
+
+/* 规则 */
+.rule-sec{margin-bottom:13px}
+.rule-sec h4{font-family:var(--serif);font-size:14.5px;font-weight:900;letter-spacing:1px;color:#8a5a12;margin-bottom:5px;
+  display:flex;align-items:center;gap:6px}
+.rule-sec h4::before{content:"";width:4px;height:14px;background:var(--gold);border-radius:2px}
+.rule-sec p,.rule-sec li{font-size:13px;color:var(--ink);line-height:1.7}
+.rule-sec ul{padding-left:18px}
+.rule-sec .hl{color:var(--up);font-weight:700}
+
+/* toast */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:99;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--ink);font-weight:700;font-size:14px;
+  padding:10px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ============ 视觉升级：图片化与过场动画 ============ */
+.good-icon{overflow:hidden}
+.t-mount img{width:64px;height:64px;object-fit:contain}
+.city-banner{background:#141a24}
+/* 赶路过场：水墨晕开+画卷展开 */
+.t-bg{background-size:cover;background-position:center;transition:background 1s}
+.t-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,23,35,.18) 0%,rgba(10,23,35,.42) 55%,rgba(8,14,30,.9) 100%);pointer-events:none}
+#transition.show .t-bg::before{animation:kenburns 9s ease-in-out infinite alternate}
+.t-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(62% 55% at 50% 42%,transparent 42%,rgba(6,11,24,.78));pointer-events:none}
+.t-ink{position:absolute;left:50%;top:46%;width:14px;height:14px;margin:-7px;border-radius:50%;z-index:0;opacity:0;
+  background:radial-gradient(circle,rgba(214,180,90,.6),transparent 65%)}
+#transition.show .t-ink{animation:inkRipple 1.25s ease-out forwards}
+@keyframes inkRipple{0%{transform:scale(1);opacity:.9}100%{transform:scale(70);opacity:0}}
+/* 开局入场 */
+#view-game{animation:viewIn .55s cubic-bezier(.2,1.2,.35,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(20px) scale(.985)}to{opacity:1;transform:none}}
+/* 劫匪遭遇 */
+.bandit-overlay{position:fixed;inset:0;z-index:210;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0}
+.bandit-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(90% 80% at 50% 50%,rgba(122,14,10,.32),rgba(30,4,2,.78));opacity:0;transition:opacity .18s}
+.bandit-overlay.show{opacity:1}
+.bandit-overlay.show::before{opacity:1}
+.bandit-card{position:relative;z-index:1;text-align:center;transform:scale(.5) rotate(-6deg);opacity:0;
+  background:linear-gradient(180deg,#2a120c,#160806);border:2px solid #a83232;border-radius:16px;padding:14px 20px 12px;
+  box-shadow:0 18px 50px rgba(0,0,0,.7),0 0 30px rgba(168,50,50,.35)}
+.bandit-overlay.show .bandit-card{animation:banditSlam .4s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes banditSlam{0%{transform:scale(.5) rotate(-6deg);opacity:0}60%{transform:scale(1.08) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+.bandit-img{width:150px;height:200px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px}
+.bandit-title{font-family:var(--serif);font-weight:900;font-size:22px;color:#ffb3a0;letter-spacing:6px;text-shadow:0 0 12px rgba(168,50,50,.8)}
+.bandit-sub{font-size:12px;color:#c9a88a;letter-spacing:2px;margin-top:2px}
+@media(max-width:760px){.bandit-img{width:110px;height:150px}}
+/* 结算彩带 */
+.settle-banner{animation:settleIn .55s cubic-bezier(.2,1.4,.4,1)}
+@keyframes settleIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.settle-pt{position:absolute;top:-8px;border-radius:2px;opacity:.9;pointer-events:none;animation:ptFall linear forwards;z-index:3}
+@keyframes ptFall{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.95}100%{transform:translateY(430px) rotate(320deg);opacity:0}}
+/* 成就罗盘/坐骑缩略 */
+.compass-thumb{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(214,180,90,.5))}
+.mount-thumb{width:66px;height:50px;object-fit:contain;margin-bottom:2px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+/* 装扮/护卫/商店/道具按钮图标 */
+.skin-thumb{width:46px;height:60px;object-fit:cover;border-radius:8px;flex:none;border:1px solid var(--gold-dim)}
+.guard-img{width:52px;height:66px;object-fit:cover;border-radius:8px;flex:none;border:1px solid var(--gold-dim)}
+.item-img{width:46px;height:46px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--gold-dim)}
+.btn-ico{width:18px;height:18px;object-fit:cover;border-radius:4px;vertical-align:-3px;margin-right:5px}
+
+/* ============ 视觉升级 II：机制新元素美化（纯视觉） ============ */
+/* 所有模态入场：画卷轻启 */
+.modal.open .modal-in{animation:modalIn .42s cubic-bezier(.2,1.3,.4,1)}
+@keyframes modalIn{from{transform:scale(.86) translateY(26px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+/* 继续商路横幅：金边缎带 + 流光扫过 */
+.resume-bar{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(194,59,46,.18),rgba(214,180,90,.15) 55%,rgba(194,59,46,.2))!important;box-shadow:0 0 0 1px rgba(214,180,90,.3) inset,0 6px 22px rgba(0,0,0,.35)}
+.resume-bar::before{content:'';position:absolute;left:-40%;top:0;bottom:0;width:36%;background:linear-gradient(100deg,transparent,rgba(240,215,140,.3),transparent);transform:skewX(-18deg);animation:barSheen 2.6s ease-in-out infinite;pointer-events:none}
+@keyframes barSheen{0%{left:-40%}60%,100%{left:130%}}
+.resume-inner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative;z-index:1}
+.resume-tip{font-family:var(--serif);font-weight:700;letter-spacing:1px;color:var(--gold-hi);font-size:13.5px;text-shadow:0 0 10px rgba(214,180,90,.4)}
+/* 新手/回归礼包：鎏金宝箱钮 + 呼吸光晕 */
+#btn-newb,#btn-return{background:linear-gradient(180deg,#f0d78c,#d6b45a 45%,#a8872f)!important;color:#2a1c05!important;border:1px solid #f5e6c0!important;box-shadow:0 4px 18px rgba(214,180,90,.45),0 0 0 1px rgba(245,230,192,.35) inset;animation:giftPulse 2.2s ease-in-out infinite}
+@keyframes giftPulse{0%,100%{box-shadow:0 4px 18px rgba(214,180,90,.45),0 0 0 1px rgba(245,230,192,.35) inset}50%{box-shadow:0 4px 28px rgba(214,180,90,.8),0 0 0 1px rgba(245,230,192,.6) inset}}
+/* 商队等级章：鎏金徽章 */
+#lv-chip{display:inline-block;font-family:var(--serif);font-weight:900;font-size:12.5px;color:var(--gold-hi)!important;background:linear-gradient(180deg,rgba(214,180,90,.28),rgba(214,180,90,.12));border:1px solid rgba(214,180,90,.55);border-radius:20px;padding:1px 10px;letter-spacing:1px;vertical-align:1px;text-shadow:0 0 10px rgba(214,180,90,.45)}
+/* 新系统主按钮：悬浮微光 */
+#btn-hall,#btn-map,#btn-invest{position:relative;transition:transform .18s ease,box-shadow .18s ease}
+#btn-hall:hover,#btn-map:hover,#btn-invest:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(214,180,90,.35)}
+/* 战绩长图按钮：虚线金框 */
+#btn-share-card{border:1px dashed var(--gold)!important;color:#8a5a12!important;background:rgba(214,180,90,.14)!important;font-weight:700;letter-spacing:1px}
+#btn-share-card:hover{background:rgba(214,180,90,.32)!important}
+/* 新手引导条：缓落入场 */
+.tut-bar{animation:tutIn .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes tutIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+/* 结算交易明细徽记 */
+.trade-title .seal{background:var(--ink);color:var(--gold-hi);font-size:10.5px;padding:1px 6px;border-radius:4px;letter-spacing:2px}
+
+@media (max-width:560px){
+  body{background-attachment:scroll}
+  .h1{font-size:36px;letter-spacing:6px}
+  .start-cards{grid-template-columns:1fr}
+  .good-price .p{font-size:17px}
+  .trade-scroll{max-height:180px}
+  .tut-bar{flex-direction:column;align-items:stretch;gap:6px}
+}
+</style>
+</head>
+<body>
+<svg style="display:none">
+  <defs>
+    <g id="i-wheat"><path d="M12 21V8"/><path d="M9.2 7.5C6.4 7 5 4.8 4.8 3c2.3.2 3.9 1.9 4.4 4.5Z"/><path d="M14.8 7.5c2.8-.5 4.2-2.7 4.4-4.5-2.3.2-3.9 1.9-4.4 4.5Z"/><path d="M9 12.5C6.4 12 5.2 10 5 8.4c2.1.2 3.4 1.6 4 4.1Z"/><path d="M15 12.5c2.6-.5 3.8-2.5 4-4.1-2.1.2-3.4 1.6-4 4.1Z"/><path d="M4 21h16"/></g>
+    <g id="i-wood"><path d="M8 3h8v18H8z"/><ellipse cx="12" cy="7.2" rx="2.6" ry="1.5"/><path d="M12 9.4v11.6"/></g>
+    <g id="i-salt"><path d="M5.5 16h13l-3-5h-7l-3 5Z"/><path d="M4 16v3h16v-3"/><path d="M8.5 10h.01M12 10h.01M15.5 10h.01"/></g>
+    <g id="i-iron"><path d="M5.5 15.5 9 5h6l2.5 10.5-3.5 3h-7l-1.5-3Z"/><path d="M16.8 7.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5.5-1.3Z"/><path d="M9 5v4M15 5v4"/></g>
+    <g id="i-hide"><path d="M6.5 4h11l1.8 7.5L16 19H8l-3.3-7.5L6.5 4Z"/><path d="M12 6v8M7.5 9.5h9"/></g>
+    <g id="i-tea"><path d="M12 20V10"/><path d="M12 10c-2.8-1-4.6-3.6-4.8-6 2.4.4 4.8 2.4 4.8 6Z"/><path d="M12 10c2.8-1 4.6-3.6 4.8-6-2.4.4-4.8 2.4-4.8 6Z"/><path d="M12 14.5c-2.2-.8-3.6-2.8-3.8-4.6 1.9.3 3.8 1.9 3.8 4.6Z"/></g>
+    <g id="i-silk"><path d="M6 4.5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M6 4.5c-2 .5-3 1.6-3 3.5s1 3 3 3.5"/></g>
+    <g id="i-spice"><path d="M9 3.5h6l1 3.2v11.3a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 18V6.7l1-3.2Z"/><path d="M8 8h8M8 12.5h8M10.5 14.5h3"/></g>
+    <g id="i-porcelain"><path d="M10.2 8h3.6l2 4.2a5.8 5.8 0 0 1-7.6 0l2-4.2Z"/><path d="M10.2 8V5h3.6v3"/><path d="M9.4 19h5.2"/><path d="M10.2 8l.8 4M13.8 8l-.8 4"/></g>
+    <g id="i-jewel"><path d="M7 4.5h10l3 5.5-8 9.5-8-9.5 3-5.5Z"/><path d="M4 10h16M9.5 4.5 7.5 10 12 19.5M14.5 4.5l2 5.5L12 19.5"/></g>
+    <g id="i-amber"><path d="M12 4.5c3.6 0 6.2 2.6 6.2 6 0 3.3-2.6 6-6.2 6s-6.2-2.7-6.2-6c0-3.4 2.6-6 6.2-6Z"/><circle cx="9.7" cy="10.8" r="1.1"/><circle cx="13.8" cy="13.6" r=".8"/><path d="M12 4.5c-2-1.4-4.4-1.7-6.8-1.1.9 3 2.6 4.9 5.4 6.1 2.8-1.2 4.5-3.1 5.4-6.1-2.4-.6-4.8-.3-6.8 1.1Z"/><path d="M6.5 20h11"/></g>
+  </defs>
+</svg>
+<img class="deco-ship" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M20 55h80l-8 14H28l-8-14Z' fill='%23d6b45a'/%3E%3Cpath d='M42 38h36l-6 10H48l-6-10Z' fill='%23d6b45a'/%3E%3Cpath d='M58 55V18h8l4 10 8 5-12 22' fill='none' stroke='%23d6b45a' stroke-width='2'/%3E%3Cpath d='M14 62h92' stroke='%23d6b45a' stroke-width='2'/%3E%3C/svg%3E" alt="">
+
+<!-- ===== 主角商队（右下角悬浮） ===== -->
+<div class="hero-float" id="hero-float">
+  <div class="hero-row">
+    <img src="assets/merchant_t.png" alt="掌柜" id="hero-img" onclick="event.stopPropagation();openViewer((hero.gender==='female'?'女掌柜':'男掌柜'),this.src)" title="点击放大掌柜">
+    <img src="assets/caravan_horse_t.png" alt="商队" id="hero-mount" onclick="event.stopPropagation();openViewer('坐骑·'+currentMount().name,this.src)" title="点击放大坐骑">
+  </div>
+  <div class="hero-name" id="hero-name">掌柜</div>
+  <span class="zoom-hint">点击放大</span>
+</div>
+<section id="view-start" class="wrap">
+  <div class="title-wrap">
+    <img class="compass" id="compass" src="assets/compass.png" alt="罗盘">
+    <h1 class="h1">商路大亨</h1>
+    <p class="sub">低买高卖 · 行商天下</p>
+  </div>
+  <div class="wallet-bar">
+    <span class="wallet-lab">随身钱袋</span>
+    <span class="wallet-val num" id="w-balance">0</span>
+    <span class="wallet-hint">金币 · <b id="w-title" style="color:var(--gold-hi)">初入行商</b> · <b id="lv-chip" style="color:var(--gold-hi)">商队 Lv.1</b></span>
+    <span class="wallet-dia num" id="w-dia">0</span>
+  </div>
+  <div class="resume-bar" id="resume-bar" style="display:none"></div>
+  <div class="table-cards" id="table-cards"></div>
+  <div class="start-actions">
+    <button class="btn btn-gold" id="btn-newb" style="display:none">🎁 新手礼包</button>
+    <button class="btn btn-gold" id="btn-return" style="display:none">🏮 回归礼包</button>
+    <button class="btn btn-ghost" id="btn-daily">每日签到</button>
+    <button class="btn btn-ghost" id="btn-ach">成就罗盘</button>
+    <button class="btn btn-ghost" id="btn-shop">道具商店</button>
+    <button class="btn btn-ghost" id="btn-hall">藏宝阁</button>
+    <button class="btn btn-ghost" id="btn-map">商路地图</button>
+    <button class="btn btn-ghost" id="btn-invest">商栈投资</button>
+    <button class="btn btn-gold" id="btn-guild">商会扩建</button>
+    <button class="btn btn-gold" id="btn-cloud">资产排行</button>
+    <button class="btn btn-ghost" id="btn-lb-start">行商排行榜</button>
+    <button class="btn btn-ghost" id="btn-rules-start">商路手册（规则说明）</button>
+  </div>
+  <p class="rule-note">低级场 12 站、中级场 16 站、高级场 20 站——站数越多，行情波谲云诡处越多。<br>
+  中级场与高级场需支付门票（无论盈亏概不退还），押上本金走满全程，最终身家归还钱袋。信与不信，全凭商路眼光。</p>
+</section>
+
+<!-- ===== 游戏视图 ===== -->
+<section id="view-game" class="wrap hidden">
+  <header class="topbar">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c0-1.2-1.3-2-3-2s-3 .8-3 2 1 1.8 3 2.4 3 .9 3 2.1-1.3 2-3 2-3-.8-3-2"/></svg><span class="lab">金币</span><span class="val num" id="t-gold">0</span></div>
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 4v2h6V4M9 11l2 2 4-4M11 13l-2 2M13 15l-2 2"/></svg><span class="lab">回合</span><span class="val num" id="t-round">1/12</span></div>
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 12h6M9 16h4"/></svg><span class="lab">仓库</span><span class="val num" id="t-slots">0/100</span></div>
+    <div class="chip city"><span class="lab">当前城市</span><span class="cityname" id="t-city">—</span></div>
+    <div class="chip" id="t-guard-chip" style="display:none"><span class="lab">镖师</span><span id="t-guard">—</span></div>
+    <a class="home-link" id="btn-home" href="javascript:void(0)">返回主界面</a>
+  </header>
+  <div class="tut-bar" id="tut-bar" style="display:none">
+    <div class="tut-item">① 在左侧市集挑<b>低价</b>货买入（带「特产」角标的供货价低）</div>
+    <div class="tut-item">② 运到<b>没卖的城</b>再出手，本城无市只能按 85% 折价甩卖</div>
+    <div class="tut-item">③ 小道消息<b>未必为真</b>，信不信全凭眼光</div>
+    <button class="btn btn-gold btn-sm" id="btn-tut-close">知道了</button>
+  </div>
+  <div class="goalbar">
+    <span class="gtext" id="g-table">低级场</span>
+    <div class="track"><div class="fill" id="goal-fill" style="width:0%"></div></div>
+    <span class="gval num" id="goal-val">0 / 本金 10,000</span>
+  </div>
+
+  <div class="board">
+    <div class="col">
+      <div class="panel">
+        <div class="city-banner"><img id="city-img" src="assets/city0.jpg" alt=""><span class="city-name" id="city-name">青石镇</span></div>
+        <h3><span class="seal">市集</span>本城行情<span id="city-desc" style="font-size:12px;color:#6b5636;font-weight:400;margin-left:auto"></span></h3>
+        <div class="qtyrow">
+          <span class="qtitle">批量买入/卖出数量</span>
+          <button class="qtybtn" data-q="1">×1</button>
+          <button class="qtybtn" data-q="10">×10</button>
+          <button class="qtybtn" data-q="100">×100</button>
+          <button class="qtybtn" data-q="0">最大</button>
+        </div>
+        <div class="market-grid" id="market"></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel">
+        <h3><span class="seal">仓廪</span>我的货舱<span id="cargo-count" style="font-size:12px;color:#6b5636;font-weight:400;margin-left:auto"></span></h3>
+        <button class="btn btn-dark" id="btn-sellall" style="margin-top:8px;width:100%">按本城行情全部出手</button>
+        <div class="cargo-list" id="cargo"></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <h3><span class="seal">库房</span>仓库扩容</h3>
+        <p style="font-size:12.5px;color:#6b5636;margin-top:6px;line-height:1.6">前两次扩容各需 5,000 金币（+100 格），此后每次需 10,000 金币（+100 格）。</p>
+        <button class="btn btn-dark" id="btn-expand" style="margin-top:10px;width:100%">扩容 +100 格 · 需 5,000 金币</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="intel">
+    <div class="panel">
+      <h3><span class="seal">传闻</span>小道消息</h3>
+      <div class="msg-today" id="msgs"></div>
+    </div>
+    <div class="panel">
+      <h3><span class="seal">行记</span>商路日志</h3>
+      <div class="loglist" id="loglist"></div>
+    </div>
+    <div class="panel">
+      <h3><span class="seal">见闻</span>行情簿<span style="font-size:11px;color:var(--gold-dim);font-weight:400;margin-left:auto">每城最近价</span></h3>
+      <div class="loglist" id="ledger" style="max-height:230px"></div>
+    </div>
+  </div>
+
+  <div class="panel actions">
+    <button class="btn btn-gold btn-lg" id="btn-move">前往下一城 · 耗 1 回合</button>
+    <button class="btn btn-ghost" id="btn-stay">探听消息 · 耗 1 回合</button>
+    <div class="item-row">
+      <button class="btn btn-item" id="item-tips" onclick="useItem('tips')"><img class="btn-ico" src="assets/item_tips.png" alt="">线报 ×<span id="cnt-tips">0</span></button>
+      <button class="btn btn-item" id="item-peek" onclick="useItem('peek')"><img class="btn-ico" src="assets/item_peek.png" alt="">透视镜 ×<span id="cnt-peek">0</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 结算模态 ===== -->
+<div class="modal" id="modal-settle">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-settle">×</button>
+    <div class="modal-title">商路结算</div>
+    <div class="modal-sub">全程商道走完，盘点身家</div>
+    <div class="settle-banner" id="s-banner">—</div>
+    <div class="rating"><span class="rchar" id="s-rating">B</span><span class="rname" id="s-rname">及格行商</span></div>
+    <div class="settle-stats">
+      <div class="sstat"><div class="k">本场场次</div><div class="v" id="s-table">低级场</div></div>
+      <div class="sstat"><div class="k">最终身家</div><div class="v num" id="s-assets">0</div></div>
+      <div class="sstat"><div class="k">本场收益率</div><div class="v num" id="s-rate">0%</div></div>
+      <div class="sstat"><div class="k">钱袋余额</div><div class="v num" id="s-wallet">0</div></div>
+    </div>
+    <div class="trade-title"><span class="seal">录</span>本局交易<button class="btn btn-ghost btn-sm" id="btn-toggle-trade" onclick="toggleTradeList()">展开</button></div>
+    <div class="trade-list" id="trade-list" style="display:none"></div>
+    <div class="unlock-banner" id="s-unlocked" hidden></div>
+    <div class="dia-line">本场钻石奖励 <b class="dia-num" id="s-dia">+0</b> · 商店换道具助力下一局</div>
+    <div style="margin-top:6px"><button class="btn btn-ghost" style="width:100%" id="btn-share-card" onclick="shareCard()">生成战绩长图（下载 PNG 可分享）</button></div>
+    <div class="title-prog" id="s-titleprog"></div>
+    <div class="name-row">
+      <input id="s-name" maxlength="8" placeholder="留下名号（默认：无名行商）">
+      <button class="btn btn-gold" id="btn-save">留名上榜</button>
+    </div>
+    <div class="lb-title"><span class="seal">榜</span>行商排行榜</div>
+    <div class="lb-list" id="lb-settle"></div>
+    <div class="settle-btns">
+      <button class="btn btn-gold" id="btn-replay">再走一趟</button>
+      <button class="btn btn-ghost" id="btn-to-start">回到主界面</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 排行榜模态 ===== -->
+<div class="modal" id="modal-lb">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-lb">×</button>
+    <div class="modal-title">行商排行榜</div>
+    <div class="modal-sub">历代商路豪杰 · 按本场净赚排定座次</div>
+    <div class="lb-list" id="lb-main"></div>
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="btn btn-ghost" id="btn-lb-clear" style="flex:1">清空本机记录</button>
+      <button class="btn btn-ghost" style="flex:1" data-close="modal-lb">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 成就模态 ===== -->
+<div class="modal" id="modal-ach">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-ach">×</button>
+    <div class="modal-title">商路成就</div>
+    <div class="modal-sub">
+      累计净赚 <b class="num" id="a-net">0</b> 金币 ·
+      走了 <b class="num" id="a-games">0</b> 局 ·
+      最高评级 <b id="a-best">—</b>
+    </div>
+    <div id="skin-list"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-ach">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 商店模态 ===== -->
+<div class="modal" id="modal-shop">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-shop">×</button>
+    <div class="modal-title">道具商店</div>
+    <div class="modal-sub">每走一局按净赚得钻石（净赚 100 = 1 钻，亏损局保底 1 钻），用钻石换局内助力。</div>
+    <div class="modal-sub" style="margin-top:4px">当前钻石：<b class="dia-num" id="shop-dia">0</b></div>
+    <div id="shop-list" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-shop">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 透视镜预览模态 ===== -->
+<div class="modal" id="modal-peek">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-peek">×</button>
+    <div class="modal-title" id="peek-city">前方行情预览</div>
+    <div class="modal-sub">按此备货前往，抵达时行情一致</div>
+    <div id="peek-list" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-gold" style="width:100%" data-close="modal-peek">知道了</button></div>
+  </div>
+</div>
+
+<!-- ===== 主角时装模态 ===== -->
+<!-- ===== 形象查看器（点击放大 + 滑动3D视角） ===== -->
+<div class="modal" id="modal-viewer">
+  <div class="modal-in viewer-in">
+    <button class="modal-close" data-close="modal-viewer">×</button>
+    <div class="viewer-name" id="viewer-name">形象</div>
+    <div class="viewer-stage" id="viewer-stage">
+      <img id="viewer-img" src="" alt="形象大图" draggable="false">
+    </div>
+    <div class="viewer-tip">按住形象 · 左右上下滑动可旋转视角 · 滚轮可缩放</div>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="resetViewer()">回到正面</button>
+      <button class="btn btn-ghost" style="flex:1" data-close="modal-viewer">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-hero">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-hero">×</button>
+    <div class="modal-title">掌柜装扮</div>
+    <div class="modal-sub">更换性别与衣袍，仅作外观，不影响数值</div>
+    <div style="margin:12px 0;display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-dark btn-sm" onclick="setGender('male')">男掌柜</button>
+      <button class="btn btn-dark btn-sm" onclick="setGender('female')">女掌柜</button>
+    </div>
+    <div id="hero-skins" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-hero">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 每日任务模态 ===== -->
+<!-- ===== 商路地图模态 ===== -->
+<div class="modal" id="modal-map">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-map">×</button>
+    <div class="modal-title">商路地图</div>
+    <div class="modal-sub">三条商路，越走越远，越远越险，也越赚</div>
+    <div id="map-canvas" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-map">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 藏宝阁模态（藏品+图鉴） ===== -->
+<div class="modal" id="modal-hall">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-hall">×</button>
+    <div class="modal-title">藏宝阁</div>
+    <div class="modal-sub">稀世藏品 · 货物图鉴</div>
+    <div class="hall-tabs">
+      <button class="btn btn-ghost btn-sm hall-tab on" id="tab-collect" onclick="switchHall(0)">稀世藏品</button>
+      <button class="btn btn-ghost btn-sm hall-tab" id="tab-codex" onclick="switchHall(1)">货物图鉴</button>
+    </div>
+    <div id="hall-collect" style="margin-top:10px"></div>
+    <div id="hall-codex" style="margin-top:10px;display:none"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-hall">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 商栈投资模态 ===== -->
+<div class="modal" id="modal-invest">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-invest">×</button>
+    <div class="modal-title">商栈投资</div>
+    <div class="modal-sub">入股商栈，躺赚分红</div>
+    <div id="inv-list" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-invest">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 商会扩建模态 ===== -->
+<div class="modal" id="modal-guild">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-guild">×</button>
+    <div class="modal-title">商会扩建</div>
+    <div class="modal-sub">金银入会 · 产业兴隆——用金币与钻石扩建商会，永久增益，代代受用。</div>
+    <div class="modal-sub" style="margin-top:4px">当前金币 <b class="num" id="guild-gold">0</b> · 钻石 <b class="dia-num" id="guild-dia">0</b></div>
+    <div id="guild-list" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-guild">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 资产排行榜（云端）模态 ===== -->
+<div class="modal" id="modal-cloud">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-cloud">×</button>
+    <div class="modal-title">资产排行榜</div>
+    <div class="modal-sub" id="cloud-status">云端连接中…</div>
+    <div class="modal-sub" style="margin-top:4px">我的名号：<input id="cloud-nick" maxlength="8" style="width:120px;padding:3px 6px;border:1px solid var(--gold-line);background:#fff8e8;color:var(--ink);border-radius:6px"> <button class="btn btn-ghost btn-sm" id="btn-cloud-rename">改名</button></div>
+    <div id="cloud-my" style="margin-top:8px;font-size:14px;color:var(--ink2)"></div>
+    <div id="cloud-list" style="margin-top:10px"></div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn btn-gold" style="flex:1" id="btn-cloud-sync">立即上报资产</button>
+      <button class="btn btn-ghost" style="flex:1" data-close="modal-cloud">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-daily">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-daily">×</button>
+    <div class="modal-title">每日签到与任务</div>
+    <div class="modal-sub">连续签到第 <b class="dia-num" id="d-streak">0</b> 天 · 每 7 天送白马坐骑</div>
+    <div style="margin-top:10px"><button class="btn btn-gold" id="d-sign" style="width:100%" onclick="signIn()">签到领钻石</button></div>
+    <div id="d-tasks" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-daily">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 雇佣镖师模态 ===== -->
+<div class="modal" id="modal-guard">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-guard">×</button>
+    <div class="modal-title">镖局护商</div>
+    <div class="modal-sub">即将前往「<b id="g-table-name">—</b>」，商路不太平，遇劫匪时有无镖师大不一样。</div>
+    <div id="guard-list" style="margin-top:12px"></div>
+    <div style="margin-top:14px"><button class="btn btn-gold" id="btn-go" style="width:100%" onclick="closeGuardAndGo()">雇好镖师，出发</button></div>
+  </div>
+</div>
+
+<!-- ===== 商品详情模态 ===== -->
+<div class="modal" id="modal-good">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-good">×</button>
+    <div class="good-detail">
+      <div id="gd-img" style="font-size:48px;text-align:center"></div>
+      <div>
+        <div class="modal-title" id="gd-name" style="text-align:left">—</div>
+        <div class="modal-sub" id="gd-desc" style="text-align:left"></div>
+      </div>
+    </div>
+    <div class="gd-stats">
+      <div class="gd-stat"><div class="k">当前价</div><div class="v num" id="gd-price">—</div></div>
+      <div class="gd-stat"><div class="k">史高</div><div class="v num hi" id="gd-hi">—</div></div>
+      <div class="gd-stat"><div class="k">史低</div><div class="v num lo" id="gd-lo">—</div></div>
+    </div>
+    <div id="gd-cargo" style="margin-top:10px;font-size:13px;color:#6b5636"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-good">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 规则模态 ===== -->
+<div class="modal" id="modal-rules">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-rules">×</button>
+    <div class="modal-title">商路手册</div>
+    <div class="modal-sub">玩法 · 行情 · 传闻 · 结算</div>
+    <div class="rule-sec">
+      <h4>玩法概览</h4>
+      <p>在城郭之间往来倒卖：在便宜处买入，去贵处卖出，赚取差价。每场回合结束自动结算。行商随身有一只<b>钱袋</b>（初始 20,000 金币），入场时从中扣除门票与本金，商路走完后最终身家归还钱袋——盈亏全落钱袋。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>三种场次</h4>
+      <ul>
+        <li><b>低级场</b>：门票免费，押本金 10,000。小本经营，适合练手。</li>
+        <li><b>中级场</b>：门票 5,000（概不退还），押本金 50,000。波动更大，收益上限更高。</li>
+        <li><b>高级场</b>：门票 20,000（概不退还），押本金 200,000。巨贾豪赌，大起大落。</li>
+      </ul>
+      <p style="margin-top:6px">钱袋不够入场时，先回低级场攒家底。场次越高，行情越疯、越考验胆色与眼光。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>货物与城市</h4>
+      <p>共 11 种货物，从十几金币的小麦，到上万金币的珠宝琥珀。行情起伏极大：同一种货，平时在一个价带内浮动，遇大行情可暴涨数倍、暴跌至近乎白送（小麦最低跌至个位数，珠宝琥珀可冲上一万二以上）。每座城各有<b>特产</b>（市集卡片上带金色「特产」角标，通常必在售、供货价偏低）；其余货物每城随机在售 6 种。<b>行情簿</b>会记下你走过每座城的最近一次报价，翻旧账可知何处贵贱。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>小道消息与探听</h4>
+      <ul>
+        <li>小道消息<b>并非每城都有</b>；出现时声称某货「即将涨价」，提到的货物<b>本城必有售</b>，可当场买入。传闻兑现三态：<span class="hl">约四成下一城大涨</span>、<span class="hl">约三成下一城大跌</span>、<span class="hl">约三成波澜不惊</span>。传闻未必为真，囤货前请三思。</li>
+        <li><b>探听消息</b>：花一回合在本城歇脚线，必得一条线人真讯（下一城该货大涨，且必定有售）。</li>
+        <li><b>折价甩卖</b>：货物若不在本城在售，本回合只能按 <span class="hl">购入成本的 85%</span> 折价出手。把货运到有行情的城市，才能卖到正常价钱。</li>
+      </ul>
+    </div>
+    <div class="rule-sec">
+      <h4>仓库扩容</h4>
+      <p>起始 100 格。前两次扩容：各花 <b>5,000 金币</b> 得 +100 格；此后每次需 <b>10,000 金币</b> 得 +100 格。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>结算评级</h4>
+      <p style="margin-bottom:6px">评级按<b>本场收益率</b>（最终身家 ÷ 押上本金）定夺：</p>
+      <ul>
+        <li>收益率 ≥ +100%：<b>S · 商界传奇</b></li>
+        <li>收益率 ≥ +40%：<b>A · 资深大贾</b></li>
+        <li>收益率 ≥ 0%：<b>B · 及格行商</b></li>
+        <li>收益率 ≥ -30%：<b>C · 辛苦小赔</b></li>
+        <li>收益率 &lt; -30%：<b>D · 血本无归</b></li>
+      </ul>
+      <p style="margin-top:6px">结算后可将名号与本场净赚写入排行榜（本机保存），按净赚座次排定。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>成就与罗盘皮肤</h4>
+      <p>每走一局，本场净赚都会累入<b>商路总账</b>。累计净赚越高，称号越响亮（初入行商 → 跑街小贩 → 坐贾行商 → 一方巨贾 → 海内皇商 → 商圣转世），并依次解锁五款<b>罗盘皮肤</b>：铜罗盘（默认）、银罗盘（净赚 5 千）、金罗盘（净赚 3 万）、玉罗盘（净赚 10 万）、龙纹罗盘（净赚 50 万）。解锁后回主界面点「成就罗盘」即可换上。闲来走一局，攒着解锁下一款罗盘。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>钻石与道具</h4>
+      <p>每局结算按净赚发放<b>钻石</b>（净赚 100 金币 = 1 钻，亏损局保底 1 钻）。钻石在主界面「道具商店」换取局内助力：</p>
+      <ul>
+        <li><b>线报（10 钻）</b>：使用后立刻获得一条必定兑现的真讯（下城该货大涨且有售）。</li>
+        <li><b>透视镜（20 钻）</b>：赶路前先看一眼下一城行情，按此备货，抵达时行情一致。</li>
+        <li><b>避水珠（30 钻）</b>：入场自动护佑，本局最多只亏本金两成。</li>
+      </ul>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-rules">知道了</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<!-- 劫匪遭遇弹层（纯视觉） -->
+<div class="bandit-overlay" id="bandit-overlay">
+  <div class="bandit-card">
+    <img src="assets/bandit.png" alt="劫匪" class="bandit-img">
+    <div class="bandit-title">山贼出没！</div>
+    <div class="bandit-sub">护好你的货</div>
+  </div>
+</div>
+<div id="transition">
+  <div class="t-bg" id="t-bg"></div>
+  <div class="t-ink"></div>
+  <div class="t-caravan"><img src="assets/caravan.jpg" alt=""></div>
+  <div class="t-compass"><img src="assets/compass.png" alt=""></div>
+  <div class="t-mount" id="t-mount"></div>
+  <div class="t-road" id="t-road">商路漫漫</div>
+  <div class="t-city" id="t-city">—</div>
+  <div class="t-tag" id="t-tag"></div>
+</div>
+
+<!-- 商品图标静态引用（运行时由 iconSVG 按 id 拼接加载，此处仅保证资源可被打包识别） -->
+<div style="display:none" aria-hidden="true">
+  <img src="assets/goods/wheat.png"><img src="assets/goods/wood.png"><img src="assets/goods/salt.png"><img src="assets/goods/iron.png"><img src="assets/goods/hide.png"><img src="assets/goods/tea.png">
+  <img src="assets/goods/silk.png"><img src="assets/goods/spice.png"><img src="assets/goods/porcelain.png"><img src="assets/goods/jewel.png"><img src="assets/goods/amber.png"><img src="assets/goods/jade.png">
+  <img src="assets/goods/herb.png"><img src="assets/goods/satin.png"><img src="assets/goods/bluewhite.png"><img src="assets/goods/longjing.png"><img src="assets/goods/lacquer.png"><img src="assets/goods/fan.png">
+  <img src="assets/goods/inkstone.png"><img src="assets/goods/book.png"><img src="assets/goods/silver.png"><img src="assets/goods/emerald.png"><img src="assets/goods/agate.png"><img src="assets/goods/tianhuang.png">
+  <img src="assets/goods/huimo.png"><img src="assets/goods/xuanpaper.png"><img src="assets/goods/zitan.png"><img src="assets/goods/huali.png"><img src="assets/goods/sancai.png"><img src="assets/goods/gold.png">
+  <img src="assets/goods/ruyi.png"><img src="assets/goods/pearl.png"><img src="assets/goods/tang.png"><img src="assets/goods/yu.png"><img src="assets/goods/buddha.png">
+  <img src="assets/city0.jpg"><img src="assets/city1.jpg"><img src="assets/city2.jpg"><img src="assets/city3.jpg"><img src="assets/city4.jpg"><img src="assets/city5.jpg">
+  <img src="assets/city6.jpg"><img src="assets/city7.jpg"><img src="assets/city8.jpg"><img src="assets/city9.jpg"><img src="assets/city10.jpg"><img src="assets/city11.jpg">
+  <img src="assets/city12.jpg"><img src="assets/city13.jpg"><img src="assets/city14.jpg"><img src="assets/city15.jpg">
+  <img src="assets/mount_donkey.png"><img src="assets/mount_horse.png"><img src="assets/mount_steed.png"><img src="assets/mount_qianli.png"><img src="assets/mount_longju.png">
+  <img src="assets/guard_0.png"><img src="assets/guard_1.png"><img src="assets/guard_2.png"><img src="assets/guard_3.png">
+  <img src="assets/item_tips.png"><img src="assets/item_peek.png"><img src="assets/item_shield.png">
+  <img src="assets/merchant_t.png"><img src="assets/merchant_ft.png"><img src="assets/skin_red.png"><img src="assets/skin_purple.png"><img src="assets/skin_jade.png">
+  <img src="assets/compass_bronze.png"><img src="assets/compass_silver.png"><img src="assets/compass_gold.png"><img src="assets/compass_jade.png"><img src="assets/compass_dragon.png">
+  <img src="assets/bandit.png"><img src="assets/bg.jpg"><img src="assets/caravan.jpg"><img src="assets/caravan_horse_t.png"><img src="assets/compass.png">
+</div>
+
+<script>
+"use strict";
+/* ============ 数据 ============ */
+const GOODS=[
+ /* 基础货（低级场） */
+ {id:'wheat',name:'小麦',desc:'青石镇麦浪里打下来的新麦，最寻常的行商起步货。',normal:[18,24],boom:[40,50],crash:[8,10]},
+ {id:'wood',name:'木材',desc:'林场伐下的硬木，盖屋造船都用得着。',normal:[28,38],boom:[60,85],crash:[12,16]},
+ {id:'salt',name:'盐',desc:'百味之首，沿途村镇人人都要。',normal:[45,60],boom:[100,135],crash:[20,26]},
+ {id:'iron',name:'铁矿石',desc:'铁炉城炼出的好铁，打造兵器农具的料子。',normal:[80,110],boom:[180,245],crash:[35,48]},
+ {id:'hide',name:'兽皮',desc:'兽皮谷猎户鞣好的整张皮，做裘制靴的上等原料。',normal:[110,150],boom:[250,340],crash:[48,65]},
+ {id:'tea',name:'茶叶',desc:'云雾茶城的明前新茶，富贵人家抢着要。',normal:[160,220],boom:[380,500],crash:[70,95]},
+ {id:'silk',name:'丝绸',desc:'丝锦城织机上下来的流光锦缎，一寸锦一寸金。',normal:[280,380],boom:[650,850],crash:[120,165]},
+ {id:'spice',name:'香料',desc:'明珠港舶来的胡椒檀香，几钱就是一户人家半年嚼用。',normal:[420,580],boom:[1000,1350],crash:[180,250]},
+ {id:'porcelain',name:'瓷器',desc:'窑口烧出的青白瓷，薄如蝉翼声如磬。',normal:[750,1000],boom:[1800,2400],crash:[320,430]},
+ {id:'jewel',name:'珠宝',desc:'西域辗转而来的宝石，暴涨暴跌都最凶。',normal:[4000,7000],boom:[12000,16000],crash:[1700,3000]},
+ {id:'amber',name:'琥珀',desc:'松脂凝成的金色化石，内藏虫蚁者更是天价。',normal:[4500,8500],boom:[15000,23000],crash:[1500,2600]},
+ /* 中级货（中级场） */
+ {id:'jade',name:'玉石',desc:'昆仑山下采下的和田玉，温润如脂。',normal:[800,1200],boom:[2000,2800],crash:[350,520]},
+ {id:'herb',name:'药材',desc:'巴蜀道地药材，参芪归地药铺常年收。',normal:[300,500],boom:[750,1100],crash:[130,210]},
+ {id:'satin',name:'绸缎',desc:'比丝绸更细密的缎子，贵妇衣料首选。',normal:[600,900],boom:[1400,1900],crash:[260,390]},
+ {id:'bluewhite',name:'青花瓷',desc:'景德镇窑口烧出的青花，釉色幽蓝。',normal:[1500,2200],boom:[3500,4800],crash:[650,950]},
+ {id:'longjing',name:'龙井',desc:'狮峰山下的明前龙井，豆香持久。',normal:[900,1400],boom:[2200,3000],crash:[400,600]},
+ {id:'lacquer',name:'漆器',desc:'福州脱胎漆器，轻巧如燕光泽如镜。',normal:[700,1100],boom:[1700,2400],crash:[300,470]},
+ {id:'fan',name:'折扇',desc:'杭城水磨骨纸面折扇，文人随身雅物。',normal:[200,350],boom:[480,700],crash:[90,150]},
+ {id:'inkstone',name:'端砚',desc:'肇庆端溪老坑砚，呵气成墨。',normal:[1200,1800],boom:[2800,3900],crash:[520,780]},
+ {id:'book',name:'古籍',desc:'宋版元刻善本，藏书家争相竞买。',normal:[1000,1600],boom:[2400,3400],crash:[430,690]},
+ {id:'silver',name:'银器',desc:'苏州银楼打的簪环器皿，精工细作。',normal:[1800,2600],boom:[4200,5800],crash:[800,1150]},
+ /* 高级货（高级场） */
+ {id:'emerald',name:'翡翠',desc:'缅甸老坑玻璃种翡翠，帝王绿为最。',normal:[8000,15000],boom:[20000,30000],crash:[3500,6500]},
+ {id:'agate',name:'玛瑙',desc:'南红玛瑙柿子红，一串值千金。',normal:[5000,9000],boom:[12000,18000],crash:[2200,4000]},
+ {id:'tianhuang',name:'田黄',desc:'寿山田黄石，一两田黄十两金。',normal:[15000,25000],boom:[38000,55000],crash:[6500,11000]},
+ {id:'huimo',name:'徽墨',desc:'歙州胡开文古法松烟墨，墨色如漆。',normal:[6000,10000],boom:[15000,22000],crash:[2600,4300]},
+ {id:'xuanpaper',name:'宣纸',desc:'泾县宣纸，纸寿千年。',normal:[4000,7000],boom:[10000,15000],crash:[1800,3000]},
+ {id:'zitan',name:'紫檀',desc:'南洋紫檀木，入水即沉，纹理如犀。',normal:[12000,20000],boom:[30000,45000],crash:[5200,8600]},
+ {id:'huali',name:'黄花梨',desc:'海南黄花梨，鬼脸纹者为贵。',normal:[10000,18000],boom:[25000,38000],crash:[4300,7800]},
+ {id:'sancai',name:'唐三彩',desc:'洛阳出土唐三彩马，釉色斑斓。',normal:[20000,35000],boom:[50000,75000],crash:[8500,15000]},
+ {id:'gold',name:'金器',desc:'宫中造办处打的纯金器皿。',normal:[25000,40000],boom:[60000,90000],crash:[11000,18000]},
+ {id:'ruyi',name:'玉如意',desc:'羊脂玉雕琢的如意，宫宴赏赐之物。',normal:[18000,30000],boom:[45000,68000],crash:[7800,13000]}
+];
+// 稀有藏品：钻石购买，收益为正可带回收藏室，为负则自动抵押补亏
+const RARE_ITEMS=[
+ {id:'pearl',   name:'夜明珠',   dia:100, icon:'💎', eff:'每场开始本金 +1,000 金币', boost:{startGold:1000}},
+ {id:'tang',    name:'唐三彩马', dia:200, icon:'🐎', eff:'所有货物买入价 -2%',          boost:{buyMul:0.98}},
+ {id:'yu',      name:'和田玉璧', dia:300, icon:'🟢', eff:'所有货物卖出价 +2%',          boost:{sellMul:1.02}},
+ {id:'buddha',  name:'鎏金佛像', dia:500, icon:'🪙', eff:'仓库容量 +50 格',             boost:{slots:50}}
+];
+// 收藏室：已带回的藏品
+function loadCollection(){try{return JSON.parse(localStorage.getItem('shanglu_collect_v1'))||[]}catch(e){return[]}}
+let collection=loadCollection();
+function saveCollection(){try{localStorage.setItem('shanglu_collect_v1',JSON.stringify(collection))}catch(e){}}
+// 藏品加成汇总
+function collectBoost(){
+  const b={startGold:0,buyMul:1,sellMul:1,slots:0};
+  collection.forEach(id=>{
+    const r=RARE_ITEMS.find(x=>x.id===id); if(!r) return;
+    if(r.boost.startGold) b.startGold+=r.boost.startGold;
+    if(r.boost.buyMul)   b.buyMul*=r.boost.buyMul;
+    if(r.boost.sellMul)  b.sellMul*=r.boost.sellMul;
+    if(r.boost.slots)    b.slots+=r.boost.slots;
+  });
+  return b;
+}
+/* ============ 商会扩建（金币/钻石永久升级，金钱来之不易的消耗出口） ============ */
+const GUILD_KEY='shanglu_guild_v1';
+const GUILD=[
+  {id:'acc',   name:'账房先生', cur:'gold', eff:'所有货物卖出价 +0.6%/级',  costs:[2000,5000,9000,14000,20000]},
+  {id:'buy',   name:'采购老手', cur:'dia',  eff:'所有货物买入价 -0.6%/级',  costs:[5,10,18,28,40]},
+  {id:'store', name:'货仓扩建', cur:'gold', eff:'货舱容量 +10 格/级',       costs:[1500,3500,6500,10000,15000]},
+  {id:'bank',  name:'钱庄存票', cur:'dia',  eff:'每局开局本金 +600 金币/级', costs:[4,8,14,22,32]},
+  {id:'armor', name:'商队精甲', cur:'gold', eff:'劫匪劫掠损失 -6%/级',      costs:[2500,6000,10000,16000,24000]},
+  {id:'pass',  name:'通关文书', cur:'dia',  eff:'商路入场门票 -10%/级',     costs:[3,6,10,16,24]}
+];
+function loadGuild(){try{return JSON.parse(localStorage.getItem(GUILD_KEY))||{}}catch(e){return{}}}
+let guild=loadGuild();
+function saveGuild(){try{localStorage.setItem(GUILD_KEY,JSON.stringify(guild))}catch(e){}}
+function guildLv(id){return guild[id]||0}
+function guildBoost(){
+  return {
+    sellMul:1+0.006*guildLv('acc'),
+    buyMul:1-0.006*guildLv('buy'),
+    slots:10*guildLv('store'),
+    startGold:600*guildLv('bank'),
+    banditCut:0.06*guildLv('armor'),
+    ticketMul:1-0.10*guildLv('pass')
+  };
+}
+function upgradeGuild(id){
+  const it=GUILD.find(x=>x.id===id); if(!it) return;
+  const lv=guildLv(id); if(lv>=it.costs.length){toast('该产业已满级');return}
+  const cost=it.costs[lv];
+  if(it.cur==='gold'){ if(wallet<cost){toast('金币不足，还需 '+fmt(cost-wallet));return} wallet-=cost; saveWallet(wallet); }
+  else{ if(dia<cost){toast('钻石不足，还需 '+(cost-dia));return} dia-=cost; saveDiamonds(dia); }
+  guild[id]=lv+1; saveGuild();
+  toast('「'+it.name+'」升级至 Lv.'+(lv+1));
+  renderGuild(); renderStart(); if(S) renderAll();
+}
+function renderGuild(){
+  const el=document.getElementById('guild-list'); if(!el) return;
+  const gd=document.getElementById('guild-gold'), dd=document.getElementById('guild-dia');
+  if(gd) gd.textContent=fmt(wallet);
+  if(dd) dd.textContent=dia;
+  el.innerHTML=GUILD.map(it=>{
+    const lv=guildLv(it.id), maxed=lv>=it.costs.length;
+    const cost=it.costs[lv], cur=it.cur==='gold'?wallet:dia;
+    const ok=!maxed&&cur>=cost;
+    return '<div class="shop-row">'+
+      '<div class="shop-info"><b>'+it.name+'</b>'+
+      '<span class="shop-desc">'+it.eff+'</span>'+
+      '<span class="shop-desc" style="color:var(--gold-dim)">当前 Lv.'+lv+' / '+it.costs.length+'</span></div>'+
+      '<div class="shop-buy">'+(maxed?'<span class="shop-owned">已满级</span>':
+        '<button class="btn btn-gold btn-sm" onclick="upgradeGuild(\''+it.id+'\')"'+(ok?'':' disabled')+'>升级 · '+fmt(cost)+(it.cur==='dia'?' 钻':' 金')+'</button>')+'</div>'+
+      '</div>';
+  }).join('');
+}
+/* ============ 云端：云存档 + 资产排行榜 ============ */
+const CLOUD_UID_KEY='shanglu_cloud_uid_v1', CLOUD_NICK_KEY='shanglu_cloud_nick_v1', CLOUD_SYNC_KEY='shanglu_cloud_last_v1';
+let cloudOnline=false, cloudBusy=false;
+function cloudBase(){
+  // 通过 http/https（部署或本机 server.js）打开 → 同源 API；file:// 打开 → 尝试本机后端（演示）
+  return (location.protocol==='http:'||location.protocol==='https:') ? '' : 'http://localhost:3000';
+}
+function cloudUid(){
+  let id=localStorage.getItem(CLOUD_UID_KEY);
+  if(!id){ id='u'+Math.random().toString(36).slice(2,10); localStorage.setItem(CLOUD_UID_KEY,id); }
+  return id;
+}
+function cloudNick(){ return localStorage.getItem(CLOUD_NICK_KEY)||('行商'+cloudUid().slice(1,5)); }
+async function cloudFetch(path,opt){
+  try{
+    const r=await fetch(cloudBase()+path,Object.assign({headers:{'Content-Type':'application/json'}},opt));
+    return await r.json();
+  }catch(e){ return {ok:false,err:'offline'}; }
+}
+function cloudPayload(){
+  return {
+    wallet, dia, lvExp:lv.exp||0, guild, collection,
+    mount:mount.equipped||'', skin:acct.skin||'',
+    totalNet:acct.totalNet||0, bestRating:acct.bestRating||'', games:acct.games||0,
+    ts:Date.now()
+  };
+}
+async function cloudSyncNow(){ // 上传云存档并上报资产进榜
+  if(cloudBusy) return null;
+  cloudBusy=true;
+  try{
+    const res=await cloudFetch('/api/sync',{method:'POST',body:JSON.stringify({id:cloudUid(),name:cloudNick(),asset:wallet,net:acct.totalNet||0,data:cloudPayload()})});
+    if(res&&res.ok){
+      localStorage.setItem(CLOUD_SYNC_KEY,String(res.time));
+      cloudOnline=true;
+      return res;
+    }
+    cloudOnline=false;
+    return null;
+  }finally{ cloudBusy=false; }
+}
+async function cloudPull(){ // 拉取云端存档：云端数据比本地新才应用
+  const res=await cloudFetch('/api/sync?id='+encodeURIComponent(cloudUid()));
+  if(!res||!res.ok||!res.data) return false;
+  const d=res.data, last=parseInt(localStorage.getItem(CLOUD_SYNC_KEY)||'0',10)||0;
+  if(!d.ts||d.ts<last) return false;
+  let changed=false;
+  if(typeof d.wallet==='number'&&d.wallet!==wallet){ wallet=d.wallet; saveWallet(wallet); changed=true; }
+  if(typeof d.dia==='number'&&d.dia!==dia){ dia=d.dia; saveDiamonds(dia); changed=true; }
+  if(typeof d.lvExp==='number'&&d.lvExp!==lv.exp){ lv.exp=d.lvExp; saveLv(); changed=true; }
+  if(d.guild&&typeof d.guild==='object'){ guild=d.guild; saveGuild(); changed=true; }
+  if(Array.isArray(d.collection)){ collection=d.collection; saveCollection(); changed=true; }
+  if(d.mount){ mount.equipped=d.mount; saveMount(); changed=true; }
+  if(d.skin){ acct.skin=d.skin; }
+  if(typeof d.totalNet==='number'){ acct.totalNet=d.totalNet; }
+  if(d.bestRating) acct.bestRating=d.bestRating;
+  if(typeof d.games==='number') acct.games=d.games;
+  if(changed||d.skin||typeof d.totalNet==='number') saveAccount(acct);
+  localStorage.setItem(CLOUD_SYNC_KEY,String(res.time||Date.now()));
+  return changed;
+}
+async function cloudCheck(){ const res=await cloudFetch('/api/ping'); cloudOnline=!!(res&&res.ok); return cloudOnline; }
+async function renderCloud(){ // 渲染排行榜弹窗
+  const status=document.getElementById('cloud-status'), list=document.getElementById('cloud-list'), mine=document.getElementById('cloud-my');
+  const nick=document.getElementById('cloud-nick');
+  if(nick) nick.value=cloudNick();
+  if(status) status.textContent=cloudOnline?'云端在线 · 资产全球共享':'云端离线（请启动 server.js 或部署到公网）';
+  if(mine) mine.textContent='';
+  if(list) list.innerHTML='<div style="color:var(--ink2);font-size:13px;padding:8px 0">加载中…</div>';
+  const [lb,rank]=await Promise.all([cloudFetch('/api/lb?limit=50'), cloudFetch('/api/rank?asset='+wallet)]);
+  if(!lb||!lb.ok){ if(status) status.textContent='云端离线（请启动 server.js 或部署到公网）'; cloudOnline=false; if(list) list.innerHTML='<div style="color:var(--ink2);font-size:13px;padding:8px 0">无法连接云端。本地双击打开时请先运行 <b>node server.js</b>；通过网址打开时自动启用云端。</div>'; return; }
+  cloudOnline=true;
+  if(status) status.textContent='云端在线 · 资产全球共享（共 '+(lb.total||0)+' 位行商）';
+  const rows=(lb.lb||[]).map(e=>{
+    const d=new Date(e.time);
+    const dt=(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    const net=e.net>=0?'+'+fmt(e.net):'-'+fmt(-e.net);
+    return '<div class="lb-row'+(e.name===cloudNick()?' me':'')+'"><span class="lb-rank '+(e.rank===1?'top':e.rank<4?'top':'')+'">'+e.rank+'</span>'+
+      '<span class="lb-name">'+esc(e.name)+'</span>'+
+      '<span class="lb-net">'+net+'</span>'+
+      '<span class="lb-pos">'+fmt(e.asset)+' 金 · '+dt+'</span></div>';
+  }).join('');
+  if(list) list.innerHTML=rows||'<div style="color:var(--ink2);font-size:13px;padding:8px 0">云端榜单空空如也——等你第一个上榜。</div>';
+  if(mine&&rank&&rank.ok) mine.textContent='我的资产 '+fmt(wallet)+' 金 · 当前排名 第 '+(rank.rank||'—')+' 名（共 '+rank.total+' 位）';
+}
+function cloudRename(){
+  const nick=document.getElementById('cloud-nick');
+  const name=(nick&&nick.value||'').trim().slice(0,8)||cloudNick();
+  localStorage.setItem(CLOUD_NICK_KEY,name);
+  cloudFetch('/api/rename',{method:'POST',body:JSON.stringify({id:cloudUid(),name})});
+  toast('名号已改为「'+name+'」');
+  renderCloud();
+}
+const CITIES=[
+ /* 低级场 0-5 */
+ {name:'青石镇',desc:'麦浪林场的农产小镇',specials:['wheat','wood','salt'],theme:'radial-gradient(circle at 50% 30%, #3a2f10, #1a1408 70%)',tag:'麦浪滚滚 · 农产丰饶'},
+ {name:'铁炉城',desc:'炉火通明的矿冶重镇',specials:['iron','wood'],theme:'radial-gradient(circle at 50% 30%, #3a1810, #1a0a08 70%)',tag:'炉火熊熊 · 金铁交鸣'},
+ {name:'兽皮谷',desc:'猎户皮商的边陲谷地',specials:['hide'],theme:'radial-gradient(circle at 50% 30%, #143020, #081810 70%)',tag:'林海苍茫 · 兽吼悠远'},
+ {name:'云雾茶城',desc:'云雾缭绕的茶乡山城',specials:['tea'],theme:'radial-gradient(circle at 50% 30%, #143028, #081810 70%)',tag:'云雾缭绕 · 茶香漫山'},
+ {name:'丝锦城',desc:'机杼声声的织造名城',specials:['silk','salt'],theme:'radial-gradient(circle at 50% 30%, #2a1830, #140a18 70%)',tag:'机杼声声 · 流光织锦'},
+ {name:'明珠港',desc:'万国商船云集的繁华大港',specials:['spice','porcelain','jewel'],theme:'radial-gradient(circle at 50% 30%, #102840, #081428 70%)',tag:'帆樯如林 · 万国来商'},
+ /* 中级场 6-10 */
+ {name:'江陵',desc:'长江中游的码头商埠',specials:['herb','wood','salt'],theme:'radial-gradient(circle at 50% 30%, #103038, #08181c 70%)',tag:'江陵码头上 · 舟楫往来忙'},
+ {name:'临安',desc:'江南繁华的销金窟',specials:['satin','fan','book'],theme:'radial-gradient(circle at 50% 30%, #2a2040, #140f1e 70%)',tag:'西湖歌舞 · 十里珠帘'},
+ {name:'泉州',desc:'海贸辐辏的东方大港',specials:['spice','silver','bluewhite'],theme:'radial-gradient(circle at 50% 30%, #0a2838, #06141e 70%)',tag:'刺桐港外 · 千帆蔽日'},
+ {name:'敦煌',desc:'丝路咽喉的戈壁重镇',specials:['jade','herb','silk'],theme:'radial-gradient(circle at 50% 30%, #3a2810, #1a1208 70%)',tag:'大漠孤烟 · 丝路驼铃'},
+ {name:'成都',desc:'天府之国的锦官城',specials:['lacquer','tea','herb'],theme:'radial-gradient(circle at 50% 30%, #1a3020, #0c1810 70%)',tag:'天府锦城 · 沃野千里'},
+ /* 高级场 11-15 */
+ {name:'长安',desc:'帝都万国来朝的中枢',specials:['emerald','gold','ruyi'],theme:'radial-gradient(circle at 50% 30%, #3a1820, #1a0a10 70%)',tag:'九天阊阖 · 万国衣冠'},
+ {name:'洛阳',desc:'十三朝古都的礼制名城',specials:['sancai','agate','book'],theme:'radial-gradient(circle at 50% 30%, #2a2038, #14101e 70%)',tag:'洛阳牡丹 · 甲于天下'},
+ {name:'扬州',desc:'淮左名都竹西佳处',specials:['zitan','huali','satin'],theme:'radial-gradient(circle at 50% 30%, #302010, #181008 70%)',tag:'烟花三月 · 二十四桥'},
+ {name:'燕京',desc:'北方重镇的帝都门户',specials:['xuanpaper','huimo','inkstone'],theme:'radial-gradient(circle at 50% 30%, #1a2030, #0c1018 70%)',tag:'燕台远望 · 幽燕雄关'},
+ {name:'广州',desc:'南疆海贸的第一大港',specials:['tianhuang','emerald','spice'],theme:'radial-gradient(circle at 50% 30%, #0a2820, #061410 70%)',tag:'岭南都会 · 十三行商'}
+];
+// 场次配置；lo/hi 为后台风控的目标收益带，仅内部使用，不对玩家暴露
+const TABLES=[
+ {id:'low', name:'低级场', tag:'小本经营', ticket:0,    start:10000,  rounds:12, lo:-0.20, hi:0.40,  cities:[0,5],  goods:[0,8]},
+ {id:'mid', name:'中级场', tag:'商队贸易', ticket:5000,  start:50000,  rounds:16, lo:-0.30, hi:0.60,  cities:[6,10], goods:[11,20]},
+ {id:'high',name:'高级场', tag:'巨贾豪赌', ticket:20000, start:200000, rounds:20, lo:-0.50, hi:0.75, cities:[11,15],goods:[21,30]}
+];
+const INIT_SLOTS=100, WALLET_KEY='shanglu_wallet_v1', LB_KEY='shanglu_lb_v1', ACCT_KEY='shanglu_acct_v1', RUN_KEY='shanglu_run_v1';
+const byId=id=>GOODS.find(g=>g.id===id);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const randInt=(a,b)=> b===undefined ? Math.floor(Math.random()*a) : a+Math.floor(Math.random()*(b-a+1));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const fmt=n=>Math.round(n).toLocaleString('zh-CN');
+const esc=s=>String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ============ 局内存档（防刷新丢局/刷亏损漏洞） ============ */
+function saveRunState(){
+  if(!S||S.settled) return;
+  try{
+    const snap={
+      table:S.table.id, gold:S.gold, slots:S.slots, expCount:S.expCount, round:S.round, city:S.city,
+      cargo:S.cargo, cost:S.cost, buyCity:S.buyCity||{}, market:S.market, rumor:S.rumor, today:S.today,
+      ledger:S.ledger, log:S.log.slice(0,80), trades:S.trades, tradesLog:S.tradesLog||[],
+      mult:S.mult===Infinity?'ALL':S.mult, shield:!!S.shield,
+      bodyguard:S.bodyguard, banditsMet:S.banditsMet||0,
+      rareItem:S.rareItem, rareBought:!!S.rareBought
+    };
+    localStorage.setItem(RUN_KEY,JSON.stringify(snap));
+  }catch(e){}
+}
+function clearRunState(){
+  try{localStorage.removeItem(RUN_KEY)}catch(e){}
+}
+function loadRunState(){
+  try{const d=JSON.parse(localStorage.getItem(RUN_KEY));if(d&&d.table)return d}catch(e){}
+  return null;
+}
+function restoreRunState(){
+  const d=loadRunState();
+  if(!d) return false;
+  const t=TABLES.find(x=>x.id===d.table);
+  if(!t) return false;
+  S={
+    table:t, gold:d.gold, slots:d.slots, expCount:d.expCount||0, round:d.round||1, city:d.city,
+    cargo:d.cargo||{}, cost:d.cost||{}, buyCity:d.buyCity||{}, market:d.market||[], rumor:d.rumor||null, today:d.today||{rumor:null},
+    ledger:d.ledger||{}, log:d.log||[], trades:d.trades||0, tradesLog:d.tradesLog||[], mult:d.mult==='ALL'?Infinity:(isFinite(d.mult)?d.mult:Infinity),
+    saved:false, settled:false, shield:!!d.shield,
+    bodyguard:d.bodyguard||null, banditsMet:d.banditsMet||0,
+    rareItem:d.rareItem||null, rareBought:!!d.rareBought
+  };
+  return true;
+}
+
+/* ============ 商队经验与等级（长期成长线） ============ */
+const LV_KEY='shanglu_lv_v1';
+function loadLv(){try{const d=JSON.parse(localStorage.getItem(LV_KEY));if(d&&isFinite(d.exp))return d}catch(e){}return {exp:0}}
+let lv=loadLv();
+function saveLv(){try{localStorage.setItem(LV_KEY,JSON.stringify(lv))}catch(e){}}
+function lvNum(){return Math.min(40,1+Math.floor(lv.exp/15))}
+function lvBuyMul(){return 1-0.001*lvNum()}
+function lvSellMul(){return 1+0.002*lvNum()}
+function addExp(n){
+  const before=lvNum();
+  lv.exp+=n; saveLv();
+  const after=lvNum();
+  if(after>before){
+    toast('商队升至 Lv.'+after+'！卖出价 +'+Math.round((lvSellMul()-1)*100)+'% · 买入价 -'+Math.round((1-lvBuyMul())*100)+'%');
+  }
+}
+
+/* ============ 商栈投资（被动收入） ============ */
+const NEWB_KEY='shanglu_newb_v1';
+function newbClaimed(){try{return !!localStorage.getItem(NEWB_KEY)}catch(e){return false}}
+function claimNewb(){
+  if(newbClaimed()) return;
+  wallet+=2000; saveWallet(wallet);
+  dia+=5; saveDiamonds(dia);
+  items.shield=(items.shield||0)+1; saveItems(items);
+  try{localStorage.setItem(NEWB_KEY,'1')}catch(e){}
+  toast('新手礼包到手：2000 金币 + 5 钻 + 避水珠 ×1');
+  renderStart();
+}
+/* ============ 回归礼包（离开 7 天以上） ============ */
+const VISIT_KEY='shanglu_visit_v1', REC_KEY='shanglu_rec_v1';
+function daySeq(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
+function checkReturn(){
+  let last=0; try{last=parseInt(localStorage.getItem(VISIT_KEY)||'0',10)}catch(e){}
+  try{localStorage.setItem(VISIT_KEY,String(daySeq()))}catch(e){}
+  let rec=false; try{rec=!!localStorage.getItem(REC_KEY)}catch(e){}
+  if(!rec && acct.games>0 && last>0 && (daySeq()-last)>=7){
+    const b=document.getElementById('btn-return');
+    if(b) b.style.display='';
+  }
+}
+function claimReturn(){
+  if(!acct.games) return;
+  wallet+=3000; saveWallet(wallet);
+  dia+=8; saveDiamonds(dia);
+  items.shield=(items.shield||0)+1; saveItems(items);
+  try{localStorage.setItem(REC_KEY,'1')}catch(e){}
+  toast('回归礼包到手：3000 金币 + 8 钻 + 避水珠 ×1，商路在等你！');
+  renderStart();
+}
+const INV_KEY='shanglu_inv_v1', INV_PRICE=5000, INV_DIV=300, INV_MAX=10;
+function loadInv(){try{const d=JSON.parse(localStorage.getItem(INV_KEY));if(d&&isFinite(d.units))return d}catch(e){}return {units:0}}
+let inv=loadInv();
+function saveInv(){try{localStorage.setItem(INV_KEY,JSON.stringify(inv))}catch(e){}}
+function invUnits(){return Math.max(0,Math.min(INV_MAX,inv.units||0))}
+function buyInvUnit(){
+  if(invUnits()>=INV_MAX){toast('商栈股份已满（上限 10 份）');return}
+  if(wallet<INV_PRICE){toast('钱袋不足，一份股份需 '+fmt(INV_PRICE)+' 金币');return}
+  wallet-=INV_PRICE; saveWallet(wallet);
+  inv.units=invUnits()+1; saveInv();
+  toast('购入商栈股份 ×1，此后每局结算分红 +'+fmt(INV_DIV)+' 金币');
+  renderStart(); renderInvest();
+}
+function renderInvest(){
+  const box=document.getElementById('inv-list');
+  if(!box) return;
+  const u=invUnits();
+  box.innerHTML=
+    '<div class="shop-row"><div class="shop-info"><b>商栈股份 ×'+u+'</b><span class="shop-desc">每份 '+fmt(INV_PRICE)+' 金币购入，每局结算分红 '+fmt(INV_DIV)+' 金币 · 上限 '+INV_MAX+' 份</span></div>'+
+    '<div class="shop-buy"><span class="shop-owned">每局分红 '+fmt(u*INV_DIV)+'</span>'+
+    '<button class="btn btn-dark btn-sm" '+(u>=INV_MAX||wallet<INV_PRICE?'disabled':'')+' onclick="buyInvUnit()">'+(u>=INV_MAX?'已满':'购 1 份')+'</button></div></div>'+
+    '<div class="cargo-empty" style="padding:10px 0">分红在每局结算后直接落入钱袋，不占用本局收益——睡后收入，积少成多。</div>';
+}
+
+/* ============ 藏宝阁：藏品与价格图鉴 ============ */
+function renderHall(){
+  const cb=document.getElementById('hall-collect');
+  if(cb){
+    cb.innerHTML=RARE_ITEMS.map(r=>{
+      const owned=collection.includes(r.id);
+      return '<div class="hall-row'+(owned?'':' locked')+'">'+
+        '<span class="hall-icon">'+iconSVG(r.id)+'</span>'+
+        '<span class="hall-info"><b>'+r.name+'</b><span class="shop-desc">'+(owned?'已收藏 · '+r.eff:'未收集 · 商路偶遇（低 2% / 中 4% / 高 10%）')+'</span></span>'+
+        '<span class="hall-state">'+(owned?'<span style="color:#2e7d5b">已带回</span>':'<span style="color:var(--ink2)">未收集</span>')+'</span>'+
+        '</div>';
+    }).join('');
+  }
+  const gb=document.getElementById('hall-codex');
+  if(gb){
+    gb.innerHTML=GOODS.map(g=>{
+      const h=hist[g.id];
+      return '<div class="hall-row">'+
+        '<span class="hall-icon">'+iconSVG(g.id)+'</span>'+
+        '<span class="hall-info"><b>'+g.name+'</b><span class="shop-desc">'+g.desc+'</span></span>'+
+        '<span class="hall-state">'+(h?('最低 '+fmt(h.lo)+' · 最高 '+fmt(h.hi)):'未见行情')+'</span>'+
+        '</div>';
+    }).join('');
+  }
+}
+function switchHall(i){
+  const c=document.getElementById('hall-collect'), g=document.getElementById('hall-codex');
+  const t1=document.getElementById('tab-collect'), t2=document.getElementById('tab-codex');
+  if(c) c.style.display=i===0?'':'none';
+  if(g) g.style.display=i===1?'':'none';
+  if(t1) t1.classList.toggle('on',i===0);
+  if(t2) t2.classList.toggle('on',i===1);
+}
+
+/* ============ 商路地图：三条路线的全程示意 ============ */
+function routeSvg(stations,color,label){
+  const N=stations;
+  const W=520,H=64,dx=Math.floor((W-40)/(N-1));
+  let d='M20,'+H/2+' ';
+  for(let i=0;i<N;i++) d+=(i?' L':'')+(20+i*dx)+','+H/2;
+  let nodes='';
+  for(let i=0;i<N;i++) nodes+='<circle cx="'+(20+i*dx)+'" cy="'+H/2+'" r="3.5" fill="'+color+'"/>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;display:block">'+
+    '<line x1="4" y1="'+H/2+'" x2="20" y2="'+H/2+'" stroke="'+color+'" stroke-width="2"/>'+
+    '<line x1="'+(20+(N-1)*dx)+'" y1="'+H/2+'" x2="'+(W-4)+'" y2="'+H/2+'" stroke="'+color+'" stroke-width="2"/>'+
+    '<circle cx="4" cy="'+H/2+'" r="5" fill="#c23b2e"/><circle cx="'+(W-4)+'" cy="'+H/2+'" r="5" fill="#c23b2e"/>'+
+    '<text x="4" y="'+(H/2-10)+'" font-size="10" fill="#c23b2e" text-anchor="start">起点</text>'+
+    '<text x="'+(W-4)+'" y="'+(H/2-10)+'" font-size="10" fill="#c23b2e" text-anchor="end">终点</text>'+
+    '<text x="'+(W/2)+'" y="'+(H/2+22)+'" font-size="10.5" fill="#8a5a12" text-anchor="middle">'+label+'</text>'+
+    d+nodes+'</svg>';
+}
+function renderMap(){
+  const box=document.getElementById('map-canvas');
+  if(!box) return;
+  box.innerHTML=
+    '<div class="map-row"><div class="map-head"><b>低级场 · 12 站</b><span class="shop-desc">押金 1 万 · 无门票</span></div>'+routeSvg(12,'#2e7d5b','长安 → 洛阳 → 汴京 → 扬州 → 杭州 → 泉州（途经 12 城）')+'</div>'+
+    '<div class="map-row"><div class="map-head"><b>中级场 · 16 站</b><span class="shop-desc">押金 5 万 · 门票 5 千</span></div>'+routeSvg(16,'#b8860b','过河西走廊，入西域商道（途经 16 城，特产更多）')+'</div>'+
+    '<div class="map-row"><div class="map-head"><b>高级场 · 20 站</b><span class="shop-desc">押金 20 万 · 门票 2 万</span></div>'+routeSvg(20,'#c23b2e','抵海上丝路，跨重洋货（途经 20 城，风云最险）')+'</div>'+
+    '<div class="cargo-empty" style="padding:10px 0">商路蜿蜒如珠串，站数越多，行情波谲云诡处越多。带上骡马镖师，一路顺遂。</div>';
+}
+
+/* ============ 钱袋与存档 ============ */
+function loadWallet(){
+  try{
+    const v=parseInt(localStorage.getItem(WALLET_KEY),10);
+    if(isFinite(v)&&v>=0){
+      // 兜底：商本亏穿低级场门槛时，自动补一笔重新开张，避免死局
+      return v<10000?10000:v;
+    }
+  }catch(e){}
+  return 20000; // 新行商启动金
+}
+function saveWallet(v){
+  try{localStorage.setItem(WALLET_KEY,String(Math.max(0,Math.round(v))))}catch(e){}
+}
+
+/* ============ 累计账户 · 皮肤 · 称号 ============ */
+const SKINS=[
+ {id:'bronze', name:'铜罗盘',   need:0,       ring:'#d6b45a', fill:'#d6b45a', filter:'none'},
+ {id:'silver', name:'银罗盘',   need:5000,    ring:'#c8d2e0', fill:'#c8d2e0', filter:'grayscale(.85) brightness(1.15)'},
+ {id:'gold',   name:'金罗盘',   need:30000,   ring:'#f0c040', fill:'#f0c040', filter:'saturate(1.6) brightness(1.18)'},
+ {id:'jade',   name:'玉罗盘',   need:100000,  ring:'#5fd3a5', fill:'#5fd3a5', filter:'hue-rotate(55deg) saturate(1.4)'},
+ {id:'dragon', name:'龙纹罗盘', need:500000,  ring:'#ff6b4a', fill:'#ff6b4a', filter:'hue-rotate(-28deg) saturate(1.6) brightness(1.08)'}
+];
+const TITLES=[
+ [0,'初入行商'],[5000,'跑街小贩'],[20000,'坐贾行商'],
+ [80000,'一方巨贾'],[300000,'海内皇商'],[1000000,'商圣转世']
+];
+function titleOf(net){let t=TITLES[0][1];TITLES.forEach(([n,name])=>{if(net>=n)t=name});return t}
+function loadAccount(){
+  try{const d=JSON.parse(localStorage.getItem(ACCT_KEY));
+    if(d&&typeof d==='object') return Object.assign({totalNet:0,games:0,bestRating:'',skin:'bronze'},d);
+  }catch(e){}
+  return {totalNet:0,games:0,bestRating:'',skin:'bronze'};
+}
+function saveAccount(a){try{localStorage.setItem(ACCT_KEY,JSON.stringify(a))}catch(e){}}
+let acct=loadAccount();
+
+/* ============ 钻石货币与道具 ============ */
+const DIA_KEY='shanglu_dia_v1', ITEM_KEY='shanglu_items_v1', HIST_KEY='shanglu_hist_v1';
+const SHOP=[
+ {id:'tips',   name:'线报',   price:10, desc:'使用后，下一条小道消息必定为真（下城该货大涨且有售）'},
+ {id:'peek',   name:'透视镜', price:20, desc:'赶路前先看一眼下一城的行情，知己知彼'},
+ {id:'shield', name:'避水珠', price:30, desc:'入场即自动护佑：本局最多只亏本金的两成'}
+];
+function loadDiamonds(){try{const v=parseInt(localStorage.getItem(DIA_KEY),10);if(isFinite(v)&&v>=0)return v}catch(e){}return 10}
+function saveDiamonds(v){try{localStorage.setItem(DIA_KEY,String(Math.max(0,Math.round(v))))}catch(e){}}
+function loadItems(){try{const d=JSON.parse(localStorage.getItem(ITEM_KEY));if(d&&typeof d==='object')return Object.assign({tips:0,peek:0,shield:0},d)}catch(e){}return {tips:0,peek:0,shield:0}}
+function saveItems(it){try{localStorage.setItem(ITEM_KEY,JSON.stringify(it))}catch(e){}}
+let dia=loadDiamonds(), items=loadItems();
+function buyItem(id){
+  const it=SHOP.find(x=>x.id===id);
+  if(!it) return;
+  if(dia<it.price){toast('钻石不足，多走几局赚钻再来');return}
+  dia-=it.price; saveDiamonds(dia);
+  items[id]=(items[id]||0)+1; saveItems(items);
+  toast('购入「'+it.name+'」×1');
+  renderShop();
+}
+/* ============ 坐骑皮肤（带局内加成） ============ */
+const MOUNT_KEY='shanglu_mount_v1';
+const MOUNTS=[
+ {id:'donkey', name:'毛驴',   price:0,    desc:'行商标配，无加成', icon:'🐴'},
+ {id:'horse',  name:'白马',   price:50,   desc:'仓库初始容量 +20 格', icon:'🐎'},
+ {id:'steed',  name:'骏马',   price:150,  desc:'所有货物买入价 -3%', icon:'🏇'},
+ {id:'qianli', name:'千里马', price:400,  desc:'所有货物卖出价 +3%', icon:'🦄'},
+ {id:'longju', name:'龙驹',   price:1000, desc:'本局结算若亏损，返还亏损额的 10%', icon:'🐉'}
+];
+function loadMount(){
+  try{const d=JSON.parse(localStorage.getItem(MOUNT_KEY));if(d&&typeof d==='object')return Object.assign({owned:['donkey'],equipped:'donkey'},d)}catch(e){}
+  return {owned:['donkey'],equipped:'donkey'};
+}
+let mount=loadMount();
+function saveMount(){try{localStorage.setItem(MOUNT_KEY,JSON.stringify(mount))}catch(e){}}
+function currentMount(){return MOUNTS.find(m=>m.id===mount.equipped)||MOUNTS[0]}
+function buyMount(id){
+  const m=MOUNTS.find(x=>x.id===id);
+  if(!m) return;
+  if(mount.owned.includes(id)){toast('已拥有');return}
+  if(dia<m.price){toast('钻石不足');return}
+  dia-=m.price; saveDiamonds(dia);
+  mount.owned.push(id); saveMount(); updateHeroMount();
+  toast('购入坐骑「'+m.name+'」！');
+  renderAch();
+}
+function equipMount(id){
+  if(!mount.owned.includes(id)){toast('尚未拥有');return}
+  mount.equipped=id; saveMount(); updateHeroMount();
+  toast('已换乘「'+MOUNTS.find(m=>m.id===id).name+'」');
+  renderAch();
+}
+/* ============ 镖局系统 ============ */
+const BODYGUARDS=[
+ {id:0, name:'孤身走商', level:0, price:0},
+ {id:1, name:'独行镖客', level:3, price:500},
+ {id:2, name:'精锐镖师', level:6, price:2000},
+ {id:3, name:'武林高手', level:10,price:8000}
+];
+function cargoValue(){
+  return Object.entries(S.cargo).reduce((sum,[id,qty])=>sum+qty*unitPrice(id),0);
+}
+/* 赶路遇劫匪：本局最多触发2次 */
+function maybeBandit(){
+  if(S.banditsMet>=2) return;
+  // 每次赶路 10% 概率，已遇过一次后降到 5%
+  const p=S.banditsMet>=1?0.05:0.10;
+  if(Math.random()>p) return;
+  S.banditsMet++;
+  const foe=randInt(1,11); // 劫匪实力 1-10
+  const goodsVal=cargoValue();
+  if(S.bodyguard){
+    if(S.bodyguard.level>=foe){
+      log('sys','遭遇劫匪（实力'+foe+'）！'+S.bodyguard.name+'（实力'+S.bodyguard.level+'）拔刀相护，劫匪退去，货物无损。');
+      toast('镖师击退劫匪！货物无损');
+    }else{
+      log('sys','遭遇劫匪（实力'+foe+'）！'+S.bodyguard.name+'（实力'+S.bodyguard.level+'）拼死拖住劫匪，你趁乱脱身——镖师再也没回来。此后商路无人护卫。');
+      toast('镖师壮烈牺牲！此后无人护商');
+      S.bodyguard=null;
+    }
+  }else{
+    const lossRatio=(0.3+Math.random()*0.2)*(1-guildBoost().banditCut); // 30%-50%，商队精甲按级减损
+    const loss=Math.round(goodsVal*lossRatio);
+    // 按比例扣货（简化：从每种货扣 lossRatio 比例）
+    Object.keys(S.cargo).forEach(id=>{
+      const cut=Math.ceil(S.cargo[id]*lossRatio);
+      S.cargo[id]-=cut;
+      if(S.cargo[id]<=0){delete S.cargo[id];delete S.cost[id]}
+      else S.cost[id]*=(S.cargo[id]/(S.cargo[id]+cut));
+    });
+    log('sys','遭遇劫匪（实力'+foe+'）！无镖师护卫，货物被抢去约 '+Math.round(lossRatio*100)+'%（损失约 '+fmt(loss)+' 金币）。');
+    toast('劫匪劫掠！损失约 '+Math.round(lossRatio*100)+'% 货物');
+  }
+  renderAll();
+  banditVisual(foe);
+}
+
+/* 坐骑加成 */
+function mountBuyMul(){return mount.equipped==='steed'?0.97:1}
+function mountSellMul(){return mount.equipped==='qianli'?1.03:1}
+function mountSlotsBonus(){return mount.equipped==='horse'?20:0}
+const MOUNT_COLORS={donkey:'#a89070',horse:'#f0e8d8',steed:'#c85030',qianli:'#f0c040',longju:'#9a50d0'};
+function mountSVG(){
+  const m=currentMount();
+  return '<img src="assets/mount_'+m.id+'.png" alt="'+m.name+'" style="width:64px;height:64px;object-fit:contain">';
+}
+/* 悬浮商队随坐骑换装（纯视觉） */
+function updateHeroMount(){
+  const m=currentMount();
+  const el=document.getElementById('hero-mount');
+  if(el) el.src='assets/mount_'+m.id+'.png';
+}
+/* 赶路/开局过场：城市横幅+坐骑+水墨晕开（纯视觉，不影响玩法） */
+function showCityTransition(cidx){
+  document.getElementById('t-city').textContent='抵达 · '+CITIES[cidx].name;
+  document.getElementById('t-bg').style.background='url("assets/city'+cidx+'.jpg") center/cover';
+  document.getElementById('t-mount').innerHTML=mountSVG();
+  document.getElementById('t-tag').textContent=CITIES[cidx].tag;
+  const t=document.getElementById('transition');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1300);
+}
+
+/* ============ 主角装扮 ============ */
+const HERO_KEY='shanglu_hero_v1';
+function loadHero(){
+  let h; try{h=JSON.parse(localStorage.getItem(HERO_KEY))}catch(e){}
+  if(!h||!h.owned){h={gender:'male',skin:'plain',owned:['plain']}}
+  return h;
+}
+let hero=loadHero();
+function saveHero(){try{localStorage.setItem(HERO_KEY,JSON.stringify(hero))}catch(e){}}
+const HERO_SKINS=[
+ {id:'plain', name:'青布短打', price:0,   img:null},
+ {id:'red',   name:'朱袍绣金', price:50,  img:'assets/skin_red.png'},
+ {id:'purple',name:'紫绶金章', price:150, img:'assets/skin_purple.png'},
+ {id:'jade',  name:'月白风清', price:300, img:'assets/skin_jade.png'}
+];
+function applyHeroSkin(){
+  const s=HERO_SKINS.find(x=>x.id===hero.skin)||HERO_SKINS[0];
+  const img=document.getElementById('hero-img');
+  if(s.img) img.src=s.img;
+  else img.src = hero.gender==='female' ? 'assets/merchant_ft.png' : 'assets/merchant_t.png';
+  document.getElementById('hero-name').textContent=(hero.gender==='female'?'女':'男')+'掌柜';
+}
+function setGender(g){hero.gender=g;saveHero();applyHeroSkin();renderHeroSkins();toast('已切'+(g==='female'?'女':'男')+'掌柜')}
+function renderHeroSkins(){
+  document.getElementById('hero-skins').innerHTML=HERO_SKINS.map(s=>{
+    const owned=hero.owned.includes(s.id);
+    const eq=hero.skin===s.id;
+    const thumb=s.img||(hero.gender==='female'?'assets/merchant_ft.png':'assets/merchant_t.png');
+    return '<div class="shop-row'+(eq?' eq':'')+'" onclick="buySkin(\''+s.id+'\')" style="cursor:pointer">'+
+      '<img class="skin-thumb" src="'+thumb+'" alt="'+s.name+'" onclick="event.stopPropagation();openViewer(\''+s.name+'\',this.src)" title="点击放大" style="cursor:zoom-in">'+
+      '<div class="shop-info"><b>'+s.name+'</b><span class="shop-desc">'+(owned?'已拥有':s.price+' 钻')+'</span></div>'+
+      '<div class="shop-buy">'+(eq?'<span class="shop-owned">穿着中</span>':(owned?'<button class="btn btn-dark btn-sm">穿上</button>':'<button class="btn btn-dark btn-sm">'+s.price+'钻</button>'))+'</div></div>';
+  }).join('');
+}
+function buySkin(id){
+  const s=HERO_SKINS.find(x=>x.id===id);
+  if(hero.owned.includes(id)){hero.skin=id;saveHero();applyHeroSkin();renderHeroSkins();toast('已穿上'+s.name);return}
+  if(dia<s.price){toast('钻石不足');return}
+  dia-=s.price; saveDiamonds(dia);
+  hero.owned.push(id); hero.skin=id; saveHero();
+  applyHeroSkin(); renderHeroSkins();
+  toast('购得'+s.name+'！');
+}
+document.getElementById('hero-float').addEventListener('click',()=>{renderHeroSkins();openModal('modal-hero')});
+applyHeroSkin();
+updateHeroMount();
+
+/* ============ 每日签到与每日任务 ============ */
+const DAILY_KEY='shanglu_daily_v1';
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function yesterdayStr(){const d=new Date(Date.now()-86400000);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function loadDaily(){
+  const t=todayStr();
+  let d;
+  try{d=JSON.parse(localStorage.getItem(DAILY_KEY))}catch(e){}
+  if(!d||d.date!==t){
+    const y=yesterdayStr();
+    d={date:t, games:0, todayNet:0, claimed:[false,false,false], streak:(d&&d.lastDay===y)?(d.streak||0)+1:1, lastDay:t, signed:false};
+    saveDaily(d);
+  }
+  return d;
+}
+function saveDaily(d){try{localStorage.setItem(DAILY_KEY,JSON.stringify(d))}catch(e){}}
+let daily=loadDaily();
+const DAILY_TASKS=[
+ {need:1, reward:5,  name:'走满 1 局商路', net:0},
+ {need:2, reward:10, name:'走满 2 局商路', net:0},
+ {need:3, reward:15, name:'今日累计净赚 2 万金币', net:20000}
+];
+function claimDaily(idx){
+  if(daily.claimed[idx]){toast('已领取');return}
+  const t=DAILY_TASKS[idx];
+  const ok=t.net? (daily.todayNet||0)>=t.net : daily.games>=t.need;
+  if(!ok){toast('目标未完成');return}
+  daily.claimed[idx]=true; saveDaily(daily);
+  dia+=DAILY_TASKS[idx].reward; saveDiamonds(dia);
+  toast('任务完成 +'+DAILY_TASKS[idx].reward+' 钻');
+  renderDaily();
+}
+function signIn(){
+  if(daily.signed){toast('今日已签到');return}
+  daily.signed=true;
+  const rewards=[5,6,8,10,12,15,30];
+  const reward=rewards[(daily.streak-1)%7];
+  dia+=reward; saveDiamonds(dia);
+  if(daily.streak%7===0 && !mount.owned.includes('horse')){
+    mount.owned.push('horse'); saveMount();
+    toast('连续签到第 '+daily.streak+' 天，奖励 '+reward+' 钻 + 白马坐骑！');
+  }else{
+    toast('签到成功 +'+reward+' 钻（连续第 '+daily.streak+' 天）');
+  }
+  saveDaily(daily);
+  renderDaily();
+}
+function renderDaily(){
+  document.getElementById('d-streak').textContent=daily.streak;
+  document.getElementById('d-sign').disabled=daily.signed;
+  document.getElementById('d-sign').textContent=daily.signed?'今日已签到':'签到领钻石';
+  document.getElementById('d-tasks').innerHTML=DAILY_TASKS.map((t,i)=>{
+    const done=t.net? (daily.todayNet||0)>=t.net : daily.games>=t.need;
+    const claimed=daily.claimed[i];
+    const prog=t.net? '今日净赚 '+fmt(Math.min(daily.todayNet||0,t.net))+' / '+fmt(t.net) : '已走 '+Math.min(daily.games,t.need)+'/'+t.need+' 局';
+    return '<div class="shop-row"><div class="shop-info"><b>'+t.name+'</b><span class="shop-desc">'+prog+' · 奖励 '+t.reward+' 钻</span></div>'+
+      '<div class="shop-buy"><button class="btn btn-dark btn-sm" '+(claimed||!done?'disabled':'')+' onclick="claimDaily('+i+')">'+(claimed?'已领':done?'领取':'未完成')+'</button></div></div>';
+  }).join('');
+}
+
+/* 雇佣镖师 */
+let guardPick=0, guardTable=0;
+function openGuard(tableIdx){
+  guardPick=0; guardTable=tableIdx;
+  const t=TABLES[tableIdx];
+  document.getElementById('g-table').textContent=t.name;
+  document.getElementById('g-table-name').textContent=t.name;
+  renderGuardOptions();
+  openModal('modal-guard');
+}
+function renderGuardOptions(){
+  document.getElementById('guard-list').innerHTML=BODYGUARDS.map(g=>{
+    return '<div class="shop-row'+(guardPick===g.id?' eq':'')+'" onclick="pickGuard('+g.id+')" style="cursor:pointer">'+
+      '<img class="guard-img" src="assets/guard_'+g.id+'.png" alt="'+g.name+'">'+
+      '<div class="shop-info"><b>'+g.name+(g.price===0?'（不雇）':'')+'</b><span class="shop-desc">实力 '+g.level+' · 遇劫匪时护商；实力低于劫匪则牺牲拖敌，此后无护</span></div>'+
+      '<div class="shop-buy"><span class="shop-owned">'+(g.price?fmt(g.price)+' 金币':'免费')+'</span></div>'+
+      '</div>';
+  }).join('');
+}
+function pickGuard(id){guardPick=id;renderGuardOptions();toast('已选：'+BODYGUARDS[id].name)}
+function closeGuardAndGo(){closeModal('modal-guard');newGame(guardTable,guardPick)}
+
+/* 商品价格历史：跨局记录每种货见过的最高/最低价 */
+function loadHist(){
+  try{const d=JSON.parse(localStorage.getItem(HIST_KEY));if(d&&typeof d==='object')return d}catch(e){}
+  return {};
+}
+let hist=loadHist();
+function saveHist(){try{localStorage.setItem(HIST_KEY,JSON.stringify(hist))}catch(e){}}
+function recordPrice(id,price){
+  if(!hist[id]) hist[id]={hi:price,lo:price};
+  if(price>hist[id].hi) hist[id].hi=price;
+  if(price<hist[id].lo) hist[id].lo=price;
+  saveHist();
+}
+function currentSkin(){return SKINS.find(s=>s.id===acct.skin)||SKINS[0]}
+function equipSkin(id){
+  const sk=SKINS.find(s=>s.id===id);
+  if(!sk||acct.totalNet<sk.need){toast('尚未解锁此罗盘');return}
+  acct.skin=id; saveAccount(acct);
+  renderStart(); renderAch();
+  toast('已换上「'+sk.name+'」');
+}
+
+/* ============ 状态 ============ */
+let S=null, wallet=loadWallet();
+
+function newGame(tableIdx, guardId){
+  clearRunState(); // 全新开局，清掉可能残留的旧局存档
+  const t=TABLES[tableIdx];
+  const guard=BODYGUARDS[guardId||0];
+  const need=Math.round(t.ticket*guildBoost().ticketMul)+t.start+guard.price;
+  if(wallet<need){toast('钱袋本钱不足，先回低级场攒些家底');return}
+  wallet-=need; saveWallet(wallet);
+  // 避水珠自动生效：开局即消耗一枚
+  let shield=false;
+  if(items.shield>0){shield=true;items.shield--;saveItems(items)}
+  // 稀有藏品出现概率：低级2% 中级4% 高级10%（高级平均10场1次）
+  const rareProb={low:0.02,mid:0.04,high:0.10}[t.id]||0.02;
+  let rareItem=null;
+  if(Math.random()<rareProb){
+    rareItem=RARE_ITEMS[randInt(RARE_ITEMS.length)];
+    log('sys','商路上偶遇一件稀世藏品「'+rareItem.name+'」，仅售 '+rareItem.dia+' 钻。');
+  }
+  S={
+    table:t, gold:t.start+collectBoost().startGold+guildBoost().startGold, slots:INIT_SLOTS+mountSlotsBonus()+collectBoost().slots+guildBoost().slots, expCount:0, round:1,
+    city:randInt(t.cities[0],t.cities[1]),
+    cargo:{}, cost:{},
+    market:[], rumor:null, today:{rumor:null},
+    ledger:{}, log:[], trades:0, tradesLog:[], mult:Infinity, saved:false, settled:false, buyCity:{},
+    shield:shield,
+    bodyguard:guard.price>0?{name:guard.name,level:guard.level}:null,
+    banditsMet:0, peekCache:null,
+    rareItem:rareItem, rareBought:false
+  };
+  genMarket();
+  genRumor(false);
+  log('sys','你在「'+t.name+'」押上本金 '+fmt(t.start)+' 金币'+(t.ticket?'，另付门票 '+fmt(Math.round(t.ticket*guildBoost().ticketMul)): '')+'，开启商路。');
+  if(guard.price>0) log('sys','花 '+fmt(guard.price)+' 金币雇了「'+guard.name+'」（实力 '+guard.level+'）随行护商。');
+  if(shield) log('sys','避水珠护佑：本局最多只亏本金两成。');
+  renderAll(); renderStart();
+  showView('game');
+  showCityTransition(S.city);
+  maybeTutorial();
+}
+function renderResume(){
+  const bar=document.getElementById('resume-bar');
+  if(!bar) return;
+  const d=loadRunState();
+  if(d && !S){
+    const t=TABLES.find(x=>x.id===d.table);
+    bar.style.display='';
+    bar.innerHTML='<div class="resume-inner"><span class="resume-tip">你有一场未走完的商路</span>'+
+      '<button class="btn btn-gold" id="btn-resume">继续商路 · '+(t?t.name:'未知场次')+' 第 '+(d.round||1)+'/'+(t?t.rounds:'?')+' 站</button>'+
+      '<button class="btn btn-ghost btn-sm" id="btn-drop-run">放弃本局</button></div>';
+    const b=document.getElementById('btn-resume');
+    if(b) b.onclick=()=>{ if(restoreRunState()){ renderAll(); renderStart(); showView('game'); } };
+    const d2=document.getElementById('btn-drop-run');
+    if(d2) d2.onclick=()=>{ if(confirm('放弃未走完的商路？已付门票与押金不退还。')){ clearRunState(); renderResume(); } };
+  }else{
+    bar.style.display='none';
+  }
+}
+const TUT_KEY='shanglu_tut_v1';
+function maybeTutorial(){
+  try{if(localStorage.getItem(TUT_KEY))return}catch(e){return}
+  const bar=document.getElementById('tut-bar');
+  if(!bar) return;
+  bar.style.display='flex';
+  try{localStorage.setItem(TUT_KEY,'1')}catch(e){}
+  const b=document.getElementById('btn-tut-close');
+  if(b) b.onclick=()=>{bar.style.display='none'};
+}
+function renderStart(){
+  const nb=document.getElementById('btn-newb');
+  if(nb) nb.style.display=(newbClaimed()||acct.games>0)?'none':'';
+  document.getElementById('w-balance').textContent=fmt(wallet);
+  document.getElementById('w-dia').textContent='钻石 '+dia;
+  document.getElementById('w-title').textContent=titleOf(acct.totalNet);
+  const lvEl=document.getElementById('lv-chip');
+  if(lvEl) lvEl.textContent='商队 Lv.'+lvNum()+'（每级卖出+0.2% 买入-0.1%）';
+  // 罗盘按已装备皮肤换色（保留 drop-shadow 底光）
+  const sk=currentSkin();
+  const comp=document.getElementById('compass');
+  comp.src='assets/compass_'+sk.id+'.png';
+  comp.style.filter='drop-shadow(0 0 12px rgba(214,180,90,.5))';
+  document.getElementById('table-cards').innerHTML=TABLES.map((t,i)=>{
+    const need=Math.round(t.ticket*guildBoost().ticketMul)+t.start;
+    const ok=wallet>=need;
+    return '<div class="tcard'+(ok?'':' disabled')+'">'+
+      '<div class="tcard-top"><b>'+t.name+'</b><span class="tcard-tag">'+t.tag+'</span></div>'+
+      '<div class="tcard-line">入场门票 <b>'+(t.ticket?fmt(t.ticket):'免费')+'</b></div>'+
+      '<div class="tcard-line">押上本金 <b>'+fmt(t.start)+'</b></div>'+
+      '<div class="tcard-needs">本场需钱袋 '+fmt(need)+(ok?'':' · 钱袋不足')+'</div>'+
+      '<button class="btn btn-gold tcard-btn" onclick="openGuard('+i+')"'+(ok?'':' disabled')+'>入 场</button>'+
+      '</div>';
+  }).join('');
+  renderResume();
+}
+
+/* ============ 行情与消息 ============ */
+// 后台风控：按当前收益率暗中微调暴涨/暴跌概率，把结果收敛在场次目标带内（玩家无感知）
+function riskMul(){
+  const t=S.table;
+  const r=(assetValue()-t.start)/t.start;
+  const mid=(t.lo+t.hi)/2, half=(t.hi-t.lo)/2||1;
+  const d=Math.max(-1.3,Math.min(1.3,(r-mid)/half));
+  return {
+    boom:Math.max(0.15,1-1.25*d),
+    crash:Math.max(0.15,1+1.25*d),
+    tight: d>0 ? Math.max(0.5,1-0.42*d) : 1 // 已大赚时平时波动同步收窄，赚钱更来之不易
+  };
+}
+function genMarket(){
+  const c=CITIES[S.city];
+  const [g0,g1]=S.table.goods;
+  const pool=GOODS.slice(g0,g1+1).map(g=>g.id);
+  const others=pool.filter(id=>!c.specials.includes(id));
+  shuffle(others);
+  const inSale=[...c.specials,...others.slice(0,Math.max(0,6-c.specials.length))];
+  // 传闻闭环：未兑现的传闻商品强制塞进下一座城在售位（替换一个非特机位），保证一定能兑现
+  if(S.rumor && !S.rumor.applied && !inSale.includes(S.rumor.goodId)){
+    for(let i=inSale.length-1;i>=0;i--){
+      if(!c.specials.includes(inSale[i])){inSale[i]=S.rumor.goodId;break}
+    }
+  }
+  const rm=riskMul();
+  S.market=inSale.map(id=>{
+    const g=byId(id);
+    const isSpec=c.specials.includes(id);
+    const mid=(g.normal[0]+g.normal[1])/2; // 价格锚定在正常区间中值，全天候波动收敛在 ±35% 内
+    let price;
+    if(isSpec){
+      price=rand(mid*(1-0.12*rm.tight),mid*(1-0.03*rm.tight)); // 特产供货价：中值下方温和让利，收益高时让利同步收窄
+    }else{
+      const r=Math.random();
+      const pB=0.09*rm.boom, pC=0.09*rm.crash;
+      if(r<pB) price=rand(mid*1.18,mid*1.35);         // 涨价：中值 +18%~35%
+      else if(r<pB+pC) price=rand(mid*0.68,mid*0.82); // 降价：中值 -32%~-18%
+      else price=rand(mid*(1-0.12*rm.tight),mid*(1+0.12*rm.tight)); // 平时：中值 ±12%，大赚时收窄
+    }
+    if(S.rumor && S.rumor.goodId===id && !S.rumor.applied){
+      if(S.rumor.kind==='boom') price=rand(mid*1.25,mid*1.40);
+      else if(S.rumor.kind==='crash') price=rand(mid*0.64,mid*0.76);
+      S.rumor.applied=true;
+    }
+    price=Math.max(1,Math.round(price));
+    recordPrice(id,price);
+    return {id,price,special:isSpec};
+  });
+  // 行情簿：记录本城最近一次行情，供玩家跨城参照
+  S.ledger[S.city]={};
+  S.market.forEach(m=>{S.ledger[S.city][m.id]=m.price});
+}
+function genRumor(force){
+  // 探听消息（停留一夜）= force：必定获得一条真讯（下城大涨兑现）；普通传闻约六成出现，三态兑现
+  if(!force && Math.random()>=0.6){ S.rumor=null; S.today.rumor=null; return; }
+  const m=S.market[randInt(S.market.length)];
+  const g=byId(m.id);
+  let kind='flat';
+  if(force){
+    kind='boom';
+  }else{
+    const r=Math.random();
+    kind=r<0.4?'boom':r<0.7?'crash':'flat';
+  }
+  S.rumor={goodId:g.id,kind,applied:false};
+  S.today.rumor={id:g.id,kind};
+  log('rm','【小道消息】据可靠线人透露，「'+g.name+'」近期即将涨价！');
+}
+function log(type,text){S.log.unshift({type,text,round:S.round});if(S.log.length>120)S.log.pop()}
+
+/* ============ 交易 ============ */
+function cargoQty(){return Object.values(S.cargo).reduce((a,b)=>a+b,0)}
+// 本城在售按市价；本城无市则只能按购入成本的 85% 折价甩卖
+function unitPrice(id){
+  const m=S.market.find(x=>x.id===id);
+  if(m) return m.price;
+  const held=S.cargo[id]||0;
+  if(held>0&&S.cost[id]) return Math.max(1,Math.round(S.cost[id]/held*0.85));
+  const g=byId(id);
+  return Math.max(1,Math.round((g.normal[0]+g.normal[1])/2*0.85));
+}
+/* 卖出单价：跨城按市价×加成；本城买入的同批货在本城卖出，最高按成本价保本（防折扣套利无限刷钱） */
+function sellPriceFor(id){
+  const held=S.cargo[id]||0;
+  const m=S.market.find(x=>x.id===id);
+  let p=Math.round(unitPrice(id)*mountSellMul()*collectBoost().sellMul*lvSellMul()*guildBoost().sellMul);
+  if(m && S.buyCity[id]===S.city && held>0 && S.cost[id]){
+    const cost=Math.max(1,Math.round(S.cost[id]/held));
+    p=Math.min(p,cost);
+  }
+  return Math.max(1,p);
+}
+function assetValue(){
+  let v=S.gold;
+  for(const id in S.cargo){
+    v+=(S.cost[id]||0);
+  }
+  return v;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1900);
+}
+/* 劫匪遭遇视觉：红闪+劫匪立绘弹出（纯视觉，不影响玩法数值） */
+function banditVisual(foe){
+  const o=document.getElementById('bandit-overlay');
+  if(!o) return;
+  o.classList.remove('show'); void o.offsetWidth; o.classList.add('show');
+  clearTimeout(o._h); o._h=setTimeout(()=>o.classList.remove('show'),1900);
+}
+/* 结算彩带粒子（纯视觉） */
+function settleConfetti(win){
+  const box=document.querySelector('#modal-settle .modal-in');
+  if(!box) return;
+  const colors=win?['#d6b45a','#f0d78c','#c23b2e','#f5e6c0','#e3b95c']:['#8a7f6a','#6b5636','#b0a084'];
+  for(let i=0;i<26;i++){
+    const el=document.createElement('i');
+    el.className='settle-pt';
+    el.style.left=(8+Math.random()*84)+'%';
+    el.style.background=colors[randInt(colors.length)];
+    el.style.animationDelay=(Math.random()*0.9)+'s';
+    el.style.animationDuration=(1.6+Math.random()*1.4)+'s';
+    el.style.width=el.style.height=(5+Math.random()*6)+'px';
+    box.appendChild(el);
+    setTimeout(()=>el.remove(),3200);
+  }
+}
+function buy(id){
+  const m=S.market.find(x=>x.id===id); if(!m) return;
+  const g=byId(id);
+  const free=S.slots-cargoQty();
+  const up=Math.round(m.price*mountBuyMul()*collectBoost().buyMul*lvBuyMul()*guildBoost().buyMul);
+  const byGold=Math.floor(S.gold/up);
+  let q=Math.min(S.mult,byGold,free);
+  if(q<=0){toast(free<=0?'货舱已满，请先扩容或卖出':'金币不足，买不起');return}
+  S.gold-=q*up;
+  S.cargo[id]=(S.cargo[id]||0)+q;
+  S.cost[id]=(S.cost[id]||0)+q*up;
+  S.buyCity[id]=S.city; // 记录最近买入城市，用于同城防套利
+  S.trades++;
+  S.tradesLog.unshift({a:'买',n:g.name,q,p:up});
+  if(S.tradesLog.length>60) S.tradesLog.pop();
+  toast('购入 '+g.name+' ×'+q+(mount.equipped==='steed'?'（骏马省 3%）':''));
+  renderAll();
+}
+function sell(id){
+  const held=S.cargo[id]||0; if(!held){toast('没有可卖的货');return}
+  const g=byId(id);
+  const m=S.market.find(x=>x.id===id);
+  const price=sellPriceFor(id);
+  const sameCity=S.buyCity[id]===S.city;
+  const q=Math.min(S.mult,held);
+  S.gold+=q*price;
+  S.cargo[id]-=q;
+  if(!S.cargo[id]){delete S.cargo[id];delete S.cost[id];delete S.buyCity[id]}
+  S.trades++;
+  S.tradesLog.unshift({a:'卖',n:g.name,q,p:price});
+  if(S.tradesLog.length>60) S.tradesLog.pop();
+  if(m) toast('售出 '+g.name+' ×'+q+(sameCity?'（同城保本价）':'')+(mount.equipped==='qianli'?'（千里马抬价 3%）':''));
+  else toast('本城无市，'+g.name+' 按购入价 85% 甩卖 ×'+q);
+  renderAll();
+}
+function expand(){
+  const cost=S.expCount<2?5000:10000;
+  if(S.gold<cost){toast('金币不足，无法扩容');return}
+  S.gold-=cost; S.slots+=100; S.expCount++;
+  log('sys','仓库扩容至 '+S.slots+' 格，花费 '+fmt(cost)+' 金币。');
+  toast('仓库已扩容至 '+S.slots+' 格');
+  renderAll();
+}
+
+/* 随机商路事件（轻量趣味，不破坏平衡主线） */
+function maybeEvent(){
+  if(Math.random()>0.14) return;
+  const roll=Math.random();
+  const ids=Object.keys(S.cargo);
+  if(roll<0.3){
+    const bonus=Math.round(S.table.start*rand(0.02,0.08));
+    S.gold+=bonus;
+    log('sys','行商奇遇：路遇老友盘缠相借，白得 '+fmt(bonus)+' 金币。');
+    toast('奇遇！白得 '+fmt(bonus)+' 金币');
+  }else if(roll<0.55 && ids.length){
+    const id=ids[randInt(ids.length-1)];
+    const cut=Math.max(1,Math.ceil(S.cargo[id]*0.15));
+    S.cargo[id]-=cut;
+    if(S.cargo[id]<=0){delete S.cargo[id];delete S.cost[id];delete S.buyCity[id]}
+    log('sys','连日阴雨，一批「'+byId(id).name+'」受潮损失 '+cut+' 件。');
+    toast('货物受潮！「'+byId(id).name+'」损失 '+cut+' 件');
+  }else if(roll<0.8 && ids.length){
+    const id=ids[randInt(ids.length-1)];
+    const buyQ=Math.max(1,Math.ceil(S.cargo[id]*0.1));
+    const p=Math.round(unitPrice(id)*1.15);
+    S.gold+=buyQ*p;
+    S.cargo[id]-=buyQ;
+    if(S.cargo[id]<=0){delete S.cargo[id];delete S.cost[id]}
+    S.tradesLog.unshift({a:'卖',n:byId(id).name,q:buyQ,p});
+    if(S.tradesLog.length>60) S.tradesLog.pop();
+    log('sys','沿途货郎高价收购「'+byId(id).name+'」×'+buyQ+'（+'+fmt(buyQ*p)+' 金币）。');
+    toast('货郎收购！'+byId(id).name+' ×'+buyQ+' 卖出高价');
+  }else{
+    dia+=1; saveDiamonds(dia);
+    log('sys','驿站歇脚，掌柜热心相待，白得 1 钻。');
+    toast('驿站歇脚 +1 钻');
+  }
+  renderAll();
+}
+
+/* ============ 回合推进 ============ */
+function advance(stay){
+  if(S.settled) return;
+  if(S.round>=S.table.rounds){settle();return}
+  S.round++;
+  const finish=()=>{
+    if(S.rumor && S.rumor.applied) S.rumor=null;
+    if(stay || !S.rumor) genRumor(stay);
+    renderAll();
+    if(S.round>=S.table.rounds) toast('最后一回合！交易完毕即可点击结算。');
+  };
+  if(!stay){
+    let nextCity, keepMarket=false;
+    if(S.peekCache){
+      nextCity=S.peekCache.city;
+      S.market=S.peekCache.market;
+      S.ledger[nextCity]={};
+      S.market.forEach(m=>{S.ledger[nextCity][m.id]=m.price});
+      keepMarket=true; // 透视预览行情直接沿用，抵达后不再重抽
+      S.peekCache=null;
+    }else{
+      const [c0,c1]=S.table.cities;
+      const n=randInt(c0,c1-1);
+      nextCity = n>=S.city? n+1 : n;
+      if(nextCity>c1) nextCity=c0;
+    }
+    showCityTransition(nextCity);
+    const t=document.getElementById('transition');
+    setTimeout(()=>{
+      S.city=nextCity;
+      if(!keepMarket) genMarket();
+      log('sys','抵达「'+CITIES[S.city].name+'」。');
+      t.classList.remove('show');
+      finish();
+      maybeBandit();
+      maybeEvent();
+    }, 1300);
+  }else{
+    genMarket();
+    log('sys','你在「'+CITIES[S.city].name+'」歇脚探听，线人悄悄递来一条消息。');
+    finish();
+  }
+}
+function sellAll(){
+  const ids=Object.keys(S.cargo);
+  if(!ids.length){toast('货舱空空，无可卖之物');return}
+  ids.forEach(id=>{
+    const held=S.cargo[id];
+    const p=sellPriceFor(id);
+    S.gold+=held*p;
+    S.tradesLog.unshift({a:'卖',n:byId(id).name,q:held,p});
+    delete S.cargo[id]; delete S.cost[id]; delete S.buyCity[id];
+    S.trades++;
+  });
+  if(S.tradesLog.length>60) S.tradesLog=S.tradesLog.slice(0,60);
+  toast('全部货物已按本城行情出手');
+  renderAll();
+}
+/* 使用局内道具 */
+function useItem(id){
+  if(S.settled) return;
+  if(!items[id]||items[id]<=0){toast('该道具已用完，去主界面商店补充');return}
+  if(id==='tips'){
+    items.tips--; saveItems(items);
+    genRumor(true); // 强制一条真讯
+    toast('线报已发动：下一条小道消息必为真！');
+  }else if(id==='peek'){
+    if(S.peekCache){toast('上一次透视还没用完');return}
+    items.peek--; saveItems(items);
+    const curCity=S.city, curMarket=S.market;
+    const [c0,c1]=S.table.cities;
+    let nextCity=randInt(c0,c1);
+    while(nextCity===S.city) nextCity=randInt(c0,c1);
+    S.city=nextCity;
+    genMarket();
+    const preview={city:nextCity, market:S.market.map(m=>({...m}))};
+    S.city=curCity; S.market=curMarket;
+    S.peekCache=preview;
+    document.getElementById('peek-city').textContent='前方「'+CITIES[nextCity].name+'」行情预览';
+    document.getElementById('peek-list').innerHTML=preview.market.map(m=>{
+      const g=byId(m.id);
+      return '<div class="peek-row"><span class="peek-icon">'+iconSVG(m.id)+'</span><span class="peek-name">'+g.name+(m.special?'<span class="tag-spec">特产</span>':'')+'</span><span class="peek-price num">'+fmt(m.price)+'</span></div>';
+    }).join('');
+    openModal('modal-peek');
+  }
+  renderActions();
+}
+function ratingOfRate(r){return r>=1.0?'S':r>=0.4?'A':r>=0?'B':r>=-0.3?'C':'D'}
+/* 商品详情 */
+function openGood(id){
+  const g=byId(id);
+  const m=S.market.find(x=>x.id===id);
+  document.getElementById('gd-img').innerHTML=iconSVG(id);
+  document.getElementById('gd-name').textContent=g.name;
+  document.getElementById('gd-desc').textContent=g.desc;
+  document.getElementById('gd-price').textContent=m?fmt(m.price)+' 金币':(S.cargo[id]?fmt(unitPrice(id))+' 金币（本城无市）':'—');
+  const h=hist[id];
+  document.getElementById('gd-hi').textContent=h?fmt(h.hi)+' 金币':'尚未记录';
+  document.getElementById('gd-lo').textContent=h?fmt(h.lo)+' 金币':'尚未记录';
+  const qty=S.cargo[id]||0;
+  document.getElementById('gd-cargo').textContent=qty?('你货舱里现有 '+qty+' 件，均价 '+Math.round(S.cost[id]/qty)+' 金币。'):'';
+  openModal('modal-good');
+}
+const RATING_NAME={S:'商界传奇',A:'资深大贾',B:'及格行商',C:'辛苦小赔',D:'血本无归'};
+function settle(){
+  if(S.settled) return;
+  S.settled=true;
+  let val=assetValue();
+  const t=S.table;
+  let rate=(val-t.start)/t.start;
+  // 避水珠护佑：本局亏损最多兜在本金两成
+  if(S.shield && rate<-0.2){
+    rate=-0.2;
+    val=Math.round(t.start*0.8);
+    log('sys','避水珠护佑生效：亏损被兜在两成以内。');
+  }
+  let profit=Math.round(val-t.start);
+  // 龙驹庇佑：亏损时返还亏损额的 10%（返还计入最终盈亏，界面与实际入账一致）
+  let longjuBack=0;
+  if(mount.equipped==='longju' && profit<0){
+    longjuBack=Math.round(-profit*0.10);
+    val+=longjuBack;
+    profit+=longjuBack;
+    log('sys','龙驹庇佑：返还亏损 '+fmt(longjuBack)+' 金币。');
+  }
+  // 稀有藏品：收益为正→入收藏室；为负→自动抵押补亏（补亏部分计入最终盈亏）
+  let rareNote='';
+  if(S.rareItem && S.rareBought){
+    if(profit>0){
+      if(!collection.includes(S.rareItem.id)) collection.push(S.rareItem.id);
+      saveCollection();
+      rareNote='藏品「'+S.rareItem.name+'」已成功带回收藏室！';
+      log('sys','藏品「'+S.rareItem.name+'」已入收藏室，永久生效。');
+    }else{
+      const back=Math.abs(profit);
+      val+=back; profit+=back;
+      rareNote='藏品「'+S.rareItem.name+'」被自动抵押，补齐了全部亏损。';
+      log('sys','收益为负，藏品被抵押抵亏，未入收藏室。');
+    }
+  }
+  rate=(val-t.start)/t.start;
+  const rating=ratingOfRate(rate);
+  // 商队经验：按评级结算（S+10 A+6 B+4 C+2 D+1）
+  addExp(rating==='S'?10:rating==='A'?6:rating==='B'?4:rating==='C'?2:1);
+  const divIncome=invUnits()*INV_DIV;
+  wallet+=val+divIncome; saveWallet(wallet);
+  cloudSyncNow(); // 结算后自动同步云存档与资产榜（云端离线时静默跳过）
+  if(divIncome) log('sys','商栈分红 +'+fmt(divIncome)+' 金币（股份 ×'+invUnits()+'）。');
+  // 钻石奖励：按最终净赚发放，亏损局保底 1 钻
+  const earned=Math.max(1, Math.floor(Math.max(0,profit)/100));
+  dia+=earned; saveDiamonds(dia);
+  daily.games++; daily.todayNet=(daily.todayNet||0)+Math.max(0,profit); saveDaily(daily);
+  // 累计入账：按最终净赚累计
+  const oldNet=acct.totalNet;
+  acct.totalNet+=profit;
+  acct.games++;
+  if(!acct.bestRating||'DCBAS'.indexOf(rating)>'DCBAS'.indexOf(acct.bestRating)) acct.bestRating=rating;
+  saveAccount(acct);
+  const newly=SKINS.filter(s=>oldNet<s.need&&acct.totalNet>=s.need).map(s=>s.name);
+  if(newly.length){ dia+=newly.length*5; saveDiamonds(dia); }
+  S.final={
+    val, rate,
+    profit:profit,
+    rating, trades:S.trades, table:t, unlocked:newly, diaEarned:earned, longjuBack:longjuBack, rareNote:rareNote
+  };
+  clearRunState(); // 结算完成，清除局内存档
+  showSettlement();
+}
+function saveScore(){
+  if(S.saved) return;
+  const raw=document.getElementById('s-name').value;
+  const name=raw.trim().slice(0,8)||'无名行商';
+  const lb=loadLB();
+  const entry={name,net:S.final.profit,score:S.final.val,rating:S.final.rating,table:S.final.table.name,trades:S.final.trades,date:new Date().toLocaleDateString('zh-CN')};
+  const dup=lb.find(e=>e.name===entry.name&&e.net===entry.net&&e.table===entry.table&&e.rating===entry.rating);
+  if(dup){toast('同名同成绩已在榜上，未重复上榜');return}
+  lb.push(entry);
+  lb.sort((a,b)=>b.net-a.net);
+  try{localStorage.setItem(LB_KEY,JSON.stringify(lb.slice(0,50)))}catch(e){toast('本机存储不可用，成绩未保存')}
+  S.saved=true;
+  document.getElementById('btn-save').disabled=true;
+  renderLB(lb,entry);
+}
+function clearLB(){
+  if(!confirm('确定清空本机全部排行记录？此操作不可恢复。')) return;
+  try{localStorage.removeItem(LB_KEY)}catch(e){}
+  renderLB(loadLB(),null);
+  renderLBMain();
+  toast('排行记录已清空');
+}
+
+/* ============ 排行榜 ============ */
+function loadLB(){
+  try{const d=JSON.parse(localStorage.getItem(LB_KEY));return Array.isArray(d)?d:[]}catch(e){return[]}
+}
+function renderLB(lb,me){
+  const box=document.getElementById('lb-settle');
+  const top=lb.slice(0,10);
+  if(!top.length){box.innerHTML='<div class="lb-empty">榜上无名，等第一位行商留名。</div>';return}
+  box.innerHTML=top.map((e,i)=>{
+    const isMe=me&&e===me;
+    const r=i===0?'top':i<3?'top':'';
+    const net=e.net>=0?'+'+fmt(e.net):'-'+fmt(-e.net);
+    return '<div class="lb-row'+(isMe?' me':'')+'"><span class="lb-rank '+r+'">'+(i+1)+'</span>'+
+      '<span class="lb-name">'+esc(e.name)+'</span>'+
+      '<span class="lb-score num">'+net+'</span>'+
+      '<span class="lb-meta">'+(e.table||'低级场')+' · '+e.rating+' 级<br>'+e.date+'</span></div>';
+  }).join('');
+}
+function renderLBMain(){
+  renderLB(loadLB(),null);
+  // 主界面榜单共用同一份数据，渲染到 modal-lb
+  const box=document.getElementById('lb-main');
+  const lb=loadLB();
+  const top=lb.slice(0,10);
+  if(!top.length){box.innerHTML='<div class="lb-empty">榜上无名，等第一位行商留名。</div>';return}
+  box.innerHTML=top.map((e,i)=>{
+    const r=i===0?'top':i<3?'top':'';
+    const net=e.net>=0?'+'+fmt(e.net):'-'+fmt(-e.net);
+    return '<div class="lb-row"><span class="lb-rank '+r+'">'+(i+1)+'</span>'+
+      '<span class="lb-name">'+esc(e.name)+'</span>'+
+      '<span class="lb-score num">'+net+'</span>'+
+      '<span class="lb-meta">'+(e.table||'低级场')+' · '+e.rating+' 级<br>'+e.date+'</span></div>';
+  }).join('');
+}
+
+function renderAch(){
+  document.getElementById('a-net').textContent=fmt(acct.totalNet);
+  document.getElementById('a-games').textContent=acct.games;
+  document.getElementById('a-best').textContent=acct.bestRating?(acct.bestRating+' · '+RATING_NAME[acct.bestRating]):'—';
+  const box=document.getElementById('skin-list');
+  box.innerHTML='<div class="skin-grid">'+SKINS.map(sk=>{
+    const got=acct.totalNet>=sk.need;
+    const eq=acct.skin===sk.id;
+    const prog=sk.need===0?1:Math.min(1,acct.totalNet/sk.need);
+    return '<div class="skin-card'+(eq?' eq':'')+(got?'':' locked')+'">'+
+      '<img class="compass-thumb" src="assets/compass_'+sk.id+'.png" alt="'+sk.name+'">'+
+      '<b>'+sk.name+'</b>'+
+      (got
+        ? (eq?'<span class="skin-state">使用中</span>':'<button class="btn btn-dark btn-sm" onclick="equipSkin(\''+sk.id+'\')">装备</button>')
+        : '<span class="skin-state lock">净赚 '+fmt(sk.need)+' 解锁</span>')+
+      '<div class="skin-prog"><div style="width:'+(prog*100)+'%"></div></div>'+
+      '</div>';
+  }).join('')+'</div>'+
+  '<div class="mount-title">坐骑商队（带局内加成）</div>'+
+  '<div class="skin-grid">'+MOUNTS.map(m=>{
+    const owned=mount.owned.includes(m.id);
+    const eq=mount.equipped===m.id;
+    return '<div class="skin-card'+(eq?' eq':'')+(owned?'':' locked')+'">'+
+      '<img class="mount-thumb" src="assets/mount_'+m.id+'.png" alt="'+m.name+'" onclick="event.stopPropagation();openViewer(\'坐骑·'+m.name+'\',this.src)" title="点击放大" style="cursor:zoom-in">'+
+      '<span class="skin-name2">'+m.name+'</span>'+
+      '<span class="skin-state lock" style="font-size:10px">'+m.desc+'</span>'+
+      (owned
+        ? (eq?'<span class="skin-state">使用中</span>':'<button class="btn btn-dark btn-sm" onclick="equipMount(\''+m.id+'\')">换乘</button>')
+        : '<button class="btn btn-dark btn-sm" onclick="buyMount(\''+m.id+'\')">'+m.price+' 钻购入</button>')+
+      '</div>';
+  }).join('')+'</div>';
+}
+
+function renderShop(){
+  document.getElementById('shop-dia').textContent=dia;
+  document.getElementById('shop-list').innerHTML=SHOP.map(it=>{
+    const owned=items[it.id]||0;
+    return '<div class="shop-row">'+
+      '<img class="item-img" src="assets/item_'+it.id+'.png" alt="'+it.name+'">'+
+      '<div class="shop-info"><b>'+it.name+'</b><span class="shop-desc">'+it.desc+'</span></div>'+
+      '<div class="shop-buy"><span class="shop-owned">持有 ×'+owned+'</span>'+
+      '<button class="btn btn-dark btn-sm" onclick="buyItem(\''+it.id+'\')">'+it.price+' 钻购入</button></div>'+
+      '</div>';
+  }).join('');
+}
+
+/* ============ 渲染 ============ */
+/* 商品/藏品图标：统一由 assets/goods/<id>.png 提供高清图 */
+function iconSVG(id){
+  const g=byId(id)||RARE_ITEMS.find(r=>r.id===id);
+  return '<img class="good-img" src="assets/goods/'+id+'.png" alt="'+(g?g.name:'')+'">';
+}
+function renderTop(){
+  document.getElementById('t-gold').textContent=fmt(S.gold);
+  document.getElementById('t-round').textContent=S.round+' / '+S.table.rounds;
+  document.getElementById('t-slots').textContent=cargoQty()+' / '+S.slots;
+  document.getElementById('t-city').textContent=CITIES[S.city].name;
+  document.getElementById('city-desc').textContent='· '+CITIES[S.city].desc;
+  const banner=document.querySelector('.city-banner');
+  const img=document.getElementById('city-img');
+  img.style.display='';img.src='assets/city'+S.city+'.jpg';banner.style.background='';
+  document.getElementById('city-name').textContent=CITIES[S.city].name;
+  const gc=document.getElementById('t-guard-chip');
+  if(S.bodyguard){gc.style.display='';document.getElementById('t-guard').textContent=S.bodyguard.name+'（'+S.bodyguard.level+'）'}
+  else gc.style.display='none';
+  const av=assetValue();
+  document.getElementById('g-table').textContent=S.table.name;
+  document.getElementById('goal-val').textContent=fmt(av)+' / 本金 '+fmt(S.table.start);
+  const goalPct=Math.min(100,av/S.table.start*100);
+  document.getElementById('goal-fill').style.width=Math.max(2,goalPct)+'%';
+  document.getElementById('goal-fill').classList.toggle('over',goalPct>=100);
+  document.getElementById('cargo-count').textContent='· 占用 '+cargoQty()+' / '+S.slots+' 格';
+}
+function renderMarket(){
+  const box=document.getElementById('market');
+  let html=S.market.map(m=>{
+    const g=byId(m.id);
+    const specTag=m.special?'<span class="tag-spec">特产</span>':'';
+    const held=S.cargo[m.id]||0;
+    let holdLine='';
+    if(held>0){
+      const avg=Math.round(S.cost[m.id]/held);
+      const dif=m.price-avg;
+      const cls=dif>=0?'#2e7d5b':'#c23b2e';
+      holdLine='<div class="hold-line">持仓 <b>×'+held+'</b> · 均价 '+fmt(avg)+' <span style="color:'+cls+'">'+(dif>=0?'盈 +':'亏 -')+fmt(Math.abs(dif*held))+'</span></div>';
+    }
+    return '<div class="good-card">'+
+      '<div class="good-head" onclick="openGood(\''+m.id+'\')" style="cursor:pointer" title="查看详情">'+
+        '<span class="good-icon">'+iconSVG(m.id)+'</span>'+
+        '<span class="good-name">'+g.name+specTag+'</span>'+
+        '<span class="info-ico">i</span>'+
+      '</div>'+
+      '<div class="good-price"><span class="p num">'+fmt(m.price)+'</span><span class="c">金币/件</span></div>'+
+      holdLine+
+      '<div class="good-act"><button class="btn btn-gold" onclick="buy(\''+m.id+'\')">买入</button></div>'+
+      '</div>';
+  }).join('');
+  // 稀有藏品卡
+  if(S.rareItem && !S.rareBought){
+    const r=S.rareItem;
+    html+='<div class="good-card" style="border:2px solid #c9a84c;background:linear-gradient(135deg,#fff8e0,#ffe9b8)">'+
+      '<div class="good-head"><span class="good-icon">'+iconSVG(r.id)+'</span>'+
+      '<span class="good-name">'+r.name+'<span class="tag-spec" style="background:#b8860b">稀世藏品</span></span></div>'+
+      '<div class="good-price"><span class="p num">'+r.dia+'</span><span class="c">钻石</span></div>'+
+      '<div style="font-size:11px;color:#7a5a10;margin:4px 0">'+r.eff+'</div>'+
+      '<div class="good-act"><button class="btn btn-gold" onclick="buyRare()">购藏</button></div></div>';
+  }
+  box.innerHTML=html;
+}
+function buyRare(){
+  if(!S.rareItem||S.rareBought) return;
+  if(dia<S.rareItem.dia){toast('钻石不足，买不起这件藏品');return}
+  dia-=S.rareItem.dia; saveDiamonds(dia);
+  S.rareBought=true;
+  toast('已购藏「'+S.rareItem.name+'」，收益为正即可带回收藏室');
+  log('sys','花费 '+S.rareItem.dia+' 钻购藏「'+S.rareItem.name+'」。');
+  renderAll();
+}
+function renderCargo(){
+  const box=document.getElementById('cargo');
+  const ids=Object.keys(S.cargo);
+  if(!ids.length){box.innerHTML='<div class="cargo-empty">货舱空空。<br>在左侧市集挑便宜的货物买入，到贵的地方卖出。</div>';return}
+  box.innerHTML=ids.map(id=>{
+    const g=byId(id); const held=S.cargo[id]; const avg=S.cost[id]/held;
+    const m=S.market.find(x=>x.id===id);
+    const p=unitPrice(id);
+    const pl=Math.round((p-avg)*held);
+    const plCls=pl>0?'pos':pl<0?'neg':'';
+    const plTxt=pl>0?'盈 +'+fmt(pl):pl<0?'亏 -'+fmt(-pl):'平';
+    const offTag=m? '':'<span class="offtag">本城无市 · 按购入价 85% 甩卖</span>';
+    return '<div class="cargo-row">'+
+      '<span class="good-icon">'+iconSVG(id)+'</span>'+
+      '<span class="cargo-info"><span class="n">'+g.name+offTag+'</span><br><span class="d">成本 '+fmt(Math.round(avg))+' · 现价 '+fmt(p)+'</span></span>'+
+      '<span class="cargo-num num">×'+held+'</span>'+
+      '<span class="pl '+plCls+'">'+plTxt+'</span>'+
+      '<button class="btn btn-dark" onclick="sell(\''+id+'\')">卖出</button>'+
+      '</div>';
+  }).join('');
+}
+function renderMsgs(){
+  const box=document.getElementById('msgs');
+  const r=S.today.rumor;
+  if(!r){
+    box.innerHTML='<div class="msg-card msg-rumor" style="opacity:.6"><span class="msg-tag">飞鸽传书</span>今日无线索，行情风平浪静。<span class="rumor-note">※ 没有可依仗的传闻，全凭自己眼光。</span></div>';
+    return;
+  }
+  box.innerHTML='<div class="msg-card msg-rumor"><span class="msg-tag">飞鸽传书</span>据可靠线人透露，<b>'+byId(r.id).name+'</b> 近期即将涨价！<span class="rumor-note">※ 小道消息未必为真，当真与否全凭商路眼光。</span></div>';
+}
+function renderLog(){
+  document.getElementById('loglist').innerHTML=S.log.map(e=>
+    '<div class="log-item '+e.type+'"><span class="r">第'+e.round+'站</span>'+esc(e.text)+'</div>'
+  ).join('');
+}
+function renderLedger(){
+  const box=document.getElementById('ledger');
+  const ids=Object.keys(S.ledger);
+  if(!ids.length){box.innerHTML='<div class="cargo-empty" style="padding:12px 0">尚无见闻，走一路记一路。</div>';return}
+  box.innerHTML=ids.sort((a,b)=>a-b).map(ci=>{
+    const c=CITIES[ci];
+    const prices=Object.keys(S.ledger[ci]).map(id=>byId(id).name+' '+S.ledger[ci][id]).join(' · ');
+    return '<div class="log-item bc"><span class="r">'+c.name+'</span>'+prices+'</div>';
+  }).join('');
+}
+function renderActions(){
+  const move=document.getElementById('btn-move');
+  const stay=document.getElementById('btn-stay');
+  if(S.round>=S.table.rounds){
+    move.textContent='结束商路 · 自动结算';
+    move.classList.add('settle');
+    stay.style.display='none';
+  }else{
+    move.textContent='前往下一城 · 耗 1 回合';
+    move.classList.remove('settle');
+    stay.style.display='';
+    stay.textContent='探听消息 · 耗 1 回合';
+  }
+  const cost=S.expCount<2?5000:10000;
+  const b=document.getElementById('btn-expand');
+  b.textContent='扩容 +100 格 · 需 '+fmt(cost)+' 金币';
+  b.disabled=S.gold<cost;
+  document.querySelectorAll('.qtybtn').forEach(el=>el.classList.toggle('on',Number(el.dataset.q)===(S.mult===Infinity?0:S.mult)));
+  // 道具库存按钮
+  document.getElementById('cnt-tips').textContent=items.tips||0;
+  document.getElementById('cnt-peek').textContent=items.peek||0;
+  document.getElementById('item-tips').disabled=!items.tips;
+  document.getElementById('item-peek').disabled=!items.peek;
+}
+function renderAll(){renderTop();renderMarket();renderCargo();renderMsgs();renderLog();renderLedger();renderActions();saveRunState()}
+
+/* ============ 视图与模态 ============ */
+function showView(v){
+  document.getElementById('view-start').classList.toggle('hidden',v!=='start');
+  document.getElementById('view-game').classList.toggle('hidden',v!=='game');
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showSettlement(){
+  const f=S.final;
+  document.getElementById('s-banner').textContent=f.rate>=0?'商路顺遂 · 钱袋增厚':'小本亏折 · 再接再厉';
+  document.getElementById('s-banner').className='settle-banner '+(f.rate>=0?'settle-win':'settle-lose');
+  document.getElementById('s-rating').textContent=f.rating;
+  document.getElementById('s-rname').textContent=RATING_NAME[f.rating]+'（评级 '+f.rating+'）';
+  document.getElementById('s-table').textContent=f.table.name;
+  document.getElementById('s-assets').textContent=fmt(f.val);
+  document.getElementById('s-rate').textContent=(f.rate>=0?'+':'')+(f.rate*100).toFixed(0)+'%';
+  document.getElementById('s-wallet').textContent=fmt(wallet);
+  document.getElementById('s-name').value='';
+  document.getElementById('btn-save').disabled=false;
+  S.saved=false;
+  const un=document.getElementById('s-unlocked');
+  if(f.unlocked&&f.unlocked.length){
+    un.hidden=false;
+    un.innerHTML='恭喜解锁新罗盘 <b>'+f.unlocked.join('、')+'</b>！奖励 '+f.unlocked.length*5+' 钻，回主界面「成就罗盘」即可换上。';
+  }else{un.hidden=true}
+  document.getElementById('s-dia').textContent='+'+f.diaEarned+' 钻';
+  let nextTitle=null;
+  for(const [n,name] of TITLES){ if(acct.totalNet<n){nextTitle={n,name};break} }
+  let tp='商路总账 '+fmt(acct.totalNet)+' · ';
+  tp += nextTitle ? '距「'+nextTitle.name+'」还差 '+fmt(nextTitle.n-acct.totalNet) : '已是商路之巅，无人能及';
+  if(f.longjuBack) tp+='<br>龙驹庇佑：返还亏损 <b>'+fmt(f.longjuBack)+'</b>';
+  if(f.rareNote) tp+='<br style="color:#b8860b">'+f.rareNote;
+  document.getElementById('s-titleprog').innerHTML=tp;
+  const tl=document.getElementById('trade-list');
+  if(tl){
+    const tlog=(S.tradesLog||[]).slice(0,40);
+    if(tlog.length){
+      tl.innerHTML='<div class="trade-scroll">'+tlog.map(t=>{
+        const cls=t.a==='买'?'#2e7d5b':'#c23b2e';
+        return '<div class="trade-row"><span class="trade-act" style="color:'+cls+'">'+t.a+'</span><span class="trade-name">'+esc(t.n)+'</span><span class="trade-q">×'+t.q+'</span><span class="trade-p num">'+fmt(t.p)+'</span><span class="trade-amt num">'+fmt(t.q*t.p)+'</span></div>';
+      }).join('')+'</div>';
+    }else{
+      tl.innerHTML='<div class="cargo-empty" style="padding:10px 0">本局无交易记录。</div>';
+    }
+  }
+  renderLB(loadLB(),null);
+  settleConfetti(f.rate>=0);
+  openModal('modal-settle');
+}
+function toggleTradeList(){
+  const tl=document.getElementById('trade-list');
+  const btn=document.getElementById('btn-toggle-trade');
+  if(!tl||!btn) return;
+  const show=tl.style.display==='none';
+  tl.style.display=show?'':'none';
+  btn.textContent=show?'收起':'展开';
+}
+
+/* 战绩分享长图：canvas 绘制结算摘要并下载 PNG */
+function shareCard(){
+  const f=S.final;
+  if(!f){toast('暂无战绩可分享');return}
+  const c=document.createElement('canvas');
+  c.width=640;c.height=900;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,900);
+  g.addColorStop(0,'#1f1a12');g.addColorStop(1,'#3a2c18');
+  x.fillStyle=g;x.fillRect(0,0,640,900);
+  x.strokeStyle='#c9a84c';x.lineWidth=3;x.strokeRect(14,14,612,872);
+  x.textAlign='center';
+  x.fillStyle='#f3e3b3';
+  x.font='bold 46px "KaiTi","STKaiti",serif';
+  x.fillText('商 路 大 亨',320,92);
+  x.font='22px "KaiTi","STKaiti",serif';
+  x.fillStyle='#d8b96a';
+  x.fillText('—— 行商战绩 ——',320,132);
+  x.font='bold 34px "KaiTi",serif';
+  x.fillStyle=f.rate>=0?'#7ed49a':'#e08686';
+  x.fillText(f.table.name+' · 评级 '+f.rating,320,212);
+  const rows=[
+    ['最终身家',fmt(f.val)],
+    ['本局收益',(f.profit>=0?'+':'')+fmt(f.profit)],
+    ['收益率',(f.rate>=0?'+':'')+(f.rate*100).toFixed(0)+'%'],
+    ['成交笔数',String(f.trades)],
+    ['钻石奖励','+'+f.diaEarned+' 钻']
+  ];
+  let y=306;
+  rows.forEach(r=>{
+    x.fillStyle='#f3e3b3';x.font='22px "KaiTi",serif';
+    x.fillText(r[0],235,y);
+    x.fillStyle='#e6c87e';x.font='bold 28px "KaiTi",serif';
+    x.fillText(r[1],410,y);
+    y+=54;
+  });
+  x.fillStyle='#a9946b';x.font='18px "KaiTi",serif';
+  x.fillText('玩《商路大亨》· 低买高卖 · 谁主商途',320,862);
+  c.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download='商路战绩.png';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  });
+}
+
+/* ============ 形象查看器：点击放大 + 滑动旋转（伪3D） ============ */
+let vRotX=0, vRotY=0, vDrag=null, vZoom=1;
+function openViewer(name, src){
+  vRotX=0; vRotY=0; vZoom=1;
+  const img=document.getElementById('viewer-img');
+  const nm=document.getElementById('viewer-name');
+  if(img){img.src=src; img.style.transform=''}
+  if(nm) nm.textContent=name;
+  openModal('modal-viewer');
+  bindViewerDrag();
+}
+function bindViewerDrag(){
+  const stage=document.getElementById('viewer-stage');
+  const img=document.getElementById('viewer-img');
+  if(!stage||!img) return;
+  stage.onpointerdown=e=>{
+    vDrag={x:e.clientX,y:e.clientY,id:e.pointerId};
+    try{stage.setPointerCapture(e.pointerId)}catch(err){}
+    stage.style.cursor='grabbing';
+    e.preventDefault();
+  };
+  stage.onpointermove=e=>{
+    if(!vDrag||e.pointerId!==vDrag.id) return;
+    const dx=e.clientX-vDrag.x, dy=e.clientY-vDrag.y;
+    vRotY+=dx*0.5; vRotX-=dy*0.5;
+    vRotX=Math.max(-50,Math.min(50,vRotX));
+    vDrag={x:e.clientX,y:e.clientY,id:e.pointerId};
+    applyViewerTransform(img);
+  };
+  const end=e=>{if(vDrag&&e.pointerId===vDrag.id){vDrag=null;stage.style.cursor='grab'}};
+  stage.onpointerup=end; stage.onpointercancel=end;
+  stage.onwheel=e=>{
+    e.preventDefault();
+    vZoom=Math.max(0.6,Math.min(2.4,vZoom+(e.deltaY<0?0.12:-0.12)));
+    applyViewerTransform(img);
+  };
+}
+function applyViewerTransform(img){
+  img.style.transform='perspective(1200px) rotateX('+vRotX.toFixed(1)+'deg) rotateY('+vRotY.toFixed(1)+'deg) scale('+vZoom.toFixed(2)+')';
+}
+function resetViewer(){
+  vRotX=0; vRotY=0; vZoom=1;
+  const img=document.getElementById('viewer-img');
+  if(img) img.style.transform='';
+}
+
+/* ============ 事件绑定 ============ */
+document.getElementById('btn-replay').addEventListener('click',()=>{closeModal('modal-settle');renderStart();showView('start')});
+document.getElementById('btn-to-start').addEventListener('click',()=>{closeModal('modal-settle');renderStart();showView('start')});
+document.getElementById('btn-home').addEventListener('click',()=>{
+  if(S && !S.settled){
+    const pay=(S.table.ticket||0);
+    if(!confirm('中途折回将放弃本局结算（门票 '+(pay?fmt(pay):'0')+' 金币与押金 '+fmt(S.table.start)+' 金币均不退还），确定返回主界面？')) return;
+  }
+  clearRunState();
+  renderStart();showView('start');toast('你中途折回，本局本金已按场次扣除');
+});
+document.getElementById('btn-lb-start').addEventListener('click',()=>{renderLBMain();openModal('modal-lb')});
+document.getElementById('btn-ach').addEventListener('click',()=>{renderAch();openModal('modal-ach')});
+document.getElementById('btn-shop').addEventListener('click',()=>{renderShop();openModal('modal-shop')});
+document.getElementById('btn-daily').addEventListener('click',()=>{renderDaily();openModal('modal-daily')});
+document.getElementById('btn-newb').addEventListener('click',claimNewb);
+document.getElementById('btn-invest').addEventListener('click',()=>{renderInvest();openModal('modal-invest')});
+document.getElementById('btn-guild').addEventListener('click',()=>{renderGuild();openModal('modal-guild')});
+document.getElementById('btn-cloud').addEventListener('click',()=>{renderCloud();openModal('modal-cloud')});
+document.getElementById('btn-cloud-sync').addEventListener('click',()=>{cloudSyncNow().then(r=>{toast(r&&r.ok?('已上报，当前第 '+r.rank+' 名'):'云端离线，上报失败');renderCloud();})});
+document.getElementById('btn-cloud-rename').addEventListener('click',cloudRename);
+document.getElementById('btn-hall').addEventListener('click',()=>{renderHall();openModal('modal-hall')});
+document.getElementById('btn-map').addEventListener('click',()=>{renderMap();openModal('modal-map')});
+document.getElementById('btn-rules-start').addEventListener('click',()=>openModal('modal-rules'));
+document.getElementById('btn-expand').addEventListener('click',expand);
+document.getElementById('btn-move').addEventListener('click',()=>advance(false));
+document.getElementById('btn-stay').addEventListener('click',()=>advance(true));
+document.getElementById('btn-sellall').addEventListener('click',sellAll);
+document.getElementById('btn-save').addEventListener('click',saveScore);
+document.getElementById('btn-lb-clear').addEventListener('click',clearLB);
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+document.querySelectorAll('.qtybtn').forEach(b=>b.addEventListener('click',()=>{
+  const q=Number(b.dataset.q);
+  S.mult=q===0?Infinity:q;
+  document.querySelectorAll('.qtybtn').forEach(el=>el.classList.toggle('on',el===b));
+}));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{
+  if(e.target===m) closeModal(m.id);
+}));
+document.getElementById('btn-return').addEventListener('click',claimReturn);
+checkReturn();
+renderStart();
+/* 启动时连接云端：探测在线并拉取云存档（云端比本地新的进度自动恢复） */
+cloudCheck().then(on=>{
+  if(on) cloudPull().then(changed=>{ if(changed){ renderStart(); toast('已从云端恢复进度'); } });
+});
+</script>
+<img src="assets/skin_red.png" style="display:none"><img src="assets/skin_purple.png" style="display:none"><img src="assets/skin_jade.png" style="display:none">
+</body>
+</html>

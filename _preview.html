@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>低买高卖 · 商路大亨</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230e2438'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23d6b45a' stroke-width='2.5'/%3E%3Cpath d='M16 7v18M10 12l6 4 6-4M10 20l6-4 6 4' stroke='%23d6b45a' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* ============ 基础与配色 ============ */
+:root{
+  --bg0:#0a1723; --bg1:#0e2438; --bg2:#143349;
+  --gold:#d6b45a; --gold-hi:#f0d78c; --gold-dim:#9c8547; --gold-line:rgba(214,180,90,.38);
+  --paper:#f1e5c4; --paper2:#e7d6ab; --ink:#33240f; --ink2:#6b5636;
+  --up:#c23b2e; --down:#2e7d5b; --flat:#8a7f6a;
+  --serif:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+  --sans:'Noto Sans SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:var(--sans); color:var(--paper);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(38,84,120,.45), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(27,60,86,.55), transparent 60%),
+    linear-gradient(160deg, var(--bg0) 0%, var(--bg1) 45%, var(--bg2) 100%);
+  min-height:100vh; font-size:15px; line-height:1.5;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(115deg, rgba(255,255,255,.015) 0 2px, transparent 2px 7px);}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 14px 40px;position:relative}
+button{font-family:var(--sans);cursor:pointer}
+.fs{font-family:var(--serif)}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums}
+
+/* ============ 通用组件 ============ */
+.panel{background:linear-gradient(180deg,#f4e8c8,#ecdcb0);color:var(--ink);
+  border:1px solid var(--gold-dim);border-radius:14px;position:relative;
+  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.5);}
+.panel::before,.panel::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none}
+.panel::before{top:6px;left:6px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);border-radius:3px 0 0 0}
+.panel::after{bottom:6px;right:6px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);border-radius:0 0 3px 0}
+.panel h3{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.panel h3 .seal{display:inline-block;font-size:11px;letter-spacing:2px;color:var(--gold-hi);
+  background:var(--ink);border-radius:4px;padding:2px 7px;font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;
+  padding:8px 16px;border-radius:10px;border:1px solid var(--gold-dim);font-weight:700;font-size:15px;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;user-select:none}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-gold{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--ink);
+  box-shadow:0 4px 14px rgba(214,180,90,.35)}
+.btn-gold:hover{filter:brightness(1.07)}
+.btn-ghost{background:rgba(214,180,90,.08);color:var(--gold-hi);border-color:var(--gold-line)}
+.btn-ghost:hover{background:rgba(214,180,90,.18)}
+.btn-dark{background:var(--ink);color:var(--gold-hi);border-color:var(--gold-dim)}
+.btn-dark:hover{filter:brightness(1.25)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+.btn:disabled:active{transform:none}
+.btn-lg{min-height:52px;font-size:17px;padding:10px 26px}
+.btn-sm{min-height:40px;font-size:13px;padding:6px 12px}
+
+/* ============ 开场视图 ============ */
+#view-start{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 10px 10px}
+#view-start.hidden,#view-game.hidden{display:none}
+.title-wrap{position:relative;margin-bottom:6px}
+.compass{width:74px;height:74px;margin:0 auto 10px;filter:drop-shadow(0 0 12px rgba(214,180,90,.5));animation:spin 30s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.compass{animation:none}}
+.h1{font-family:var(--serif);font-weight:900;font-size:44px;letter-spacing:10px;line-height:1.1;
+  background:linear-gradient(180deg,var(--gold-hi) 30%,var(--gold) 70%,#8a6f33);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 6px 24px rgba(0,0,0,.5)}
+.sub{margin-top:10px;color:var(--gold-line);letter-spacing:4px;font-size:14px}
+.start-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px;margin:26px auto 22px}
+.scard{background:rgba(214,180,90,.06);border:1px solid var(--gold-line);border-radius:12px;padding:12px 10px}
+.scard b{display:block;font-family:var(--serif);font-size:18px;color:var(--gold-hi);letter-spacing:2px}
+.scard span{font-size:12.5px;color:var(--gold-line)}
+.start-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px}
+.start-actions .btn{width:100%}
+.rule-note{margin-top:22px;max-width:640px;font-size:12.5px;color:var(--gold-line);line-height:1.8}
+.deco-ship{position:fixed;right:-30px;bottom:-26px;width:190px;opacity:.10;pointer-events:none}
+
+/* ============ 顶栏 ============ */
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-bottom:12px}
+.chip{display:flex;align-items:center;gap:7px;background:rgba(14,36,56,.75);border:1px solid var(--gold-line);
+  border-radius:12px;padding:7px 12px;min-height:46px;font-size:13.5px}
+.chip svg{width:17px;height:17px;flex:none}
+.chip .lab{color:var(--gold-dim);letter-spacing:1px;font-size:12px}
+.chip .val{font-weight:700;color:var(--gold-hi)}
+.chip .val.num{font-size:16px}
+.chip.city{flex:1;min-width:150px;justify-content:space-between;gap:4px}
+.chip.city .cityname{font-family:var(--serif);font-weight:900;font-size:17px;letter-spacing:3px;color:var(--gold-hi)}
+.home-link{margin-left:auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;
+  color:var(--gold-dim);font-size:13px;text-decoration:none;border-radius:8px}
+.home-link:hover{color:var(--gold-hi);background:rgba(214,180,90,.1)}
+.goalbar{margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.goalbar .gtext{font-size:12.5px;color:var(--gold-line);letter-spacing:1px}
+.goalbar .track{flex:1;min-width:140px;height:12px;border-radius:8px;background:rgba(255,255,255,.08);
+  border:1px solid var(--gold-line);overflow:hidden}
+.goalbar .fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#a8872f,var(--gold-hi));
+  transition:width .5s ease;min-width:2px}
+.goalbar .gval.num{color:var(--gold-hi);font-weight:700;font-size:13.5px}
+
+/* ============ 版面 ============ */
+.board{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.board{grid-template-columns:1.15fr .85fr;align-items:start}}
+.col{display:flex;flex-direction:column;gap:12px}
+.panel{padding:14px}
+.qtyrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.qtyrow .qtitle{font-size:12.5px;color:var(--ink2)}
+.qtybtn{min-height:36px;padding:5px 13px;border-radius:8px;border:1px solid var(--gold-dim);
+  background:rgba(214,180,90,.14);color:var(--ink);font-weight:700;font-size:13px}
+.qtybtn.on{background:var(--ink);color:var(--gold-hi);border-color:var(--ink)}
+
+/* 市场卡片 */
+.market-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+@media (min-width:560px){.market-grid{grid-template-columns:repeat(3,1fr)}}
+.good-card{background:linear-gradient(180deg,#fdf6e2,#f0e2bb);border:1px solid #cbb47c;border-radius:12px;
+  padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.good-head{display:flex;align-items:center;gap:8px}
+.good-icon{width:38px;height:38px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#18344e,#0e2438);
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--gold-line)}
+.good-icon svg{width:22px;height:22px;color:var(--gold-hi)}
+.good-name{font-family:var(--serif);font-weight:700;font-size:15px;color:var(--ink);line-height:1.2}
+.good-price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.good-price .p{font-family:var(--serif);font-size:19px;font-weight:900;color:var(--ink)}
+.good-price .c{font-size:11.5px;color:var(--ink2)}
+.good-act{margin-top:auto}
+.good-act .btn{width:100%;min-height:42px;font-size:14px}
+
+/* 货舱 */
+.cargo-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:440px;overflow:auto;padding-right:2px}
+.cargo-empty{color:var(--ink2);font-size:13.5px;text-align:center;padding:26px 0;line-height:1.8}
+.cargo-row{display:flex;align-items:center;gap:8px;background:#fbf3dd;border:1px solid #d9c189;border-radius:10px;padding:8px 10px;flex-wrap:wrap}
+.cargo-row .good-icon{width:32px;height:32px}
+.cargo-row .good-icon svg{width:18px;height:18px}
+.cargo-info{flex:1;min-width:110px}
+.cargo-info .n{font-weight:700;color:var(--ink);font-size:14px}
+.cargo-info .d{font-size:11.5px;color:var(--ink2)}
+.cargo-num{font-family:var(--serif);font-weight:900;font-size:17px;color:var(--ink)}
+.pl{font-size:12px;font-weight:700}
+.pl.pos{color:var(--down)}
+.pl.neg{color:var(--up)}
+.offtag{font-size:10.5px;color:var(--up);background:rgba(194,59,46,.10);border:1px solid rgba(194,59,46,.45);border-radius:5px;padding:1px 5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-left:4px;vertical-align:1px}
+.cargo-row .btn{min-height:38px;font-size:13px;padding:5px 12px}
+
+/* 情报 */
+.intel{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.intel{grid-template-columns:1fr 1fr;align-items:start}}
+.msg-today{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.msg-card{border-radius:10px;padding:9px 11px;font-size:13.5px;line-height:1.55}
+.msg-rumor{background:rgba(214,180,90,.16);border:1px dashed #b08a2e;color:var(--ink)}
+.msg-tag{display:inline-block;font-size:11px;font-weight:900;letter-spacing:1px;padding:1px 7px;border-radius:5px;margin-right:6px;vertical-align:1px}
+.msg-rumor .msg-tag{background:#b08a2e;color:#fff7e0}
+.rumor-note{font-size:11.5px;color:var(--ink2);margin-top:3px;display:block}
+.loglist{display:flex;flex-direction:column;gap:5px;margin-top:10px;max-height:230px;overflow:auto;padding-right:2px}
+.log-item{font-size:12.5px;color:var(--ink2);border-bottom:1px dashed rgba(107,86,54,.25);padding:4px 2px;line-height:1.5}
+.log-item .r{color:#9a7d3f;font-weight:700;margin-right:5px}
+.log-item.sys{color:var(--ink)}
+.log-item.bc{color:var(--ink)}
+.log-item.rm{color:#8a5a12}
+
+/* 操作区 */
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;padding:14px;justify-content:center}
+.actions .btn{flex:1;min-width:150px;max-width:300px}
+.actions .btn.settle{background:linear-gradient(180deg,#e8b95c,#c98f2d);color:#2a1c05;box-shadow:0 4px 16px rgba(201,143,45,.4)}
+
+/* ============ 模态 ============ */
+.modal{position:fixed;inset:0;background:rgba(5,12,20,.78);backdrop-filter:blur(3px);display:none;
+  align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal.open{display:flex}
+.modal-in{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:linear-gradient(180deg,#f4e8c8,#ead9ac);
+  color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:22px 20px;position:relative;
+  box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.modal-in::before{content:"";position:absolute;inset:7px;border:1px solid var(--gold-line);border-radius:12px;pointer-events:none}
+.modal-close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold-dim);
+  background:rgba(214,180,90,.15);color:var(--ink);font-size:18px;font-weight:700;z-index:2}
+.modal-close:hover{background:var(--gold)}
+.modal-title{font-family:var(--serif);font-size:21px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:4px}
+.modal-sub{text-align:center;font-size:12.5px;color:var(--ink2);letter-spacing:2px;margin-bottom:16px}
+
+/* 结算 */
+.settle-banner{text-align:center;padding:14px 8px;border-radius:12px;margin-bottom:14px;font-family:var(--serif);font-weight:900;font-size:19px;letter-spacing:3px}
+.settle-win{background:linear-gradient(180deg,#f5d78e,#e3b95c);color:#4a3206;border:1px solid #c99e45}
+.settle-lose{background:#e9dcc0;color:#7a5a28;border:1px solid #cbb47c}
+.rating{text-align:center;margin:2px 0 12px}
+.rating .rchar{display:inline-block;font-family:var(--serif);font-size:64px;font-weight:900;line-height:1;
+  background:linear-gradient(180deg,var(--gold-hi),#b78a2a);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 6px rgba(122,90,40,.35))}
+.rating .rname{display:block;font-size:13px;color:var(--ink2);letter-spacing:3px;margin-top:4px}
+.settle-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.sstat{background:rgba(214,180,90,.13);border:1px solid var(--gold-dim);border-radius:10px;padding:9px 10px;text-align:center}
+.sstat .k{font-size:11.5px;color:var(--ink2);letter-spacing:1px}
+.sstat .v{font-family:var(--serif);font-weight:900;font-size:18px;color:var(--ink);margin-top:2px}
+.name-row{display:flex;gap:8px;margin-bottom:10px}
+.name-row input{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--gold-dim);background:#fdf6e2;
+  padding:8px 12px;font-size:15px;color:var(--ink);font-family:var(--sans)}
+.name-row input:focus{outline:2px solid var(--gold)}
+.lb-title{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:2px;margin:4px 0 8px;display:flex;align-items:center;gap:8px}
+.lb-title .seal{background:var(--ink);color:var(--gold-hi);font-size:11px;padding:2px 7px;border-radius:4px}
+.lb-list{display:flex;flex-direction:column;gap:5px}
+.lb-row{display:flex;align-items:center;gap:8px;background:#fbf3dd;border:1px solid #d9c189;border-radius:8px;padding:7px 10px;font-size:13px}
+.lb-row.me{background:linear-gradient(90deg,rgba(214,180,90,.35),rgba(214,180,90,.12));border-color:var(--gold)}
+.lb-rank{width:26px;text-align:center;font-family:var(--serif);font-weight:900;font-size:15px;color:#9a7d3f;flex:none}
+.lb-rank.top{color:#c23b2e;font-size:17px}
+.lb-name{flex:1;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-score{font-family:var(--serif);font-weight:900;color:var(--ink)}
+.lb-meta{font-size:11px;color:var(--ink2);text-align:right}
+.lb-empty{text-align:center;color:var(--ink2);font-size:13px;padding:16px 0}
+.settle-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.settle-btns .btn{flex:1;min-width:130px}
+
+/* 规则 */
+.rule-sec{margin-bottom:13px}
+.rule-sec h4{font-family:var(--serif);font-size:14.5px;font-weight:900;letter-spacing:1px;color:#8a5a12;margin-bottom:5px;
+  display:flex;align-items:center;gap:6px}
+.rule-sec h4::before{content:"";width:4px;height:14px;background:var(--gold);border-radius:2px}
+.rule-sec p,.rule-sec li{font-size:13px;color:var(--ink);line-height:1.7}
+.rule-sec ul{padding-left:18px}
+.rule-sec .hl{color:var(--up);font-weight:700}
+
+/* toast */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:99;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--ink);font-weight:700;font-size:14px;
+  padding:10px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:560px){
+  .h1{font-size:36px;letter-spacing:6px}
+  .start-cards{grid-template-columns:1fr}
+  .good-price .p{font-size:17px}
+}
+</style>
+</head>
+<body>
+<svg style="display:none">
+  <defs>
+    <g id="i-wheat"><path d="M12 21V8"/><path d="M9.2 7.5C6.4 7 5 4.8 4.8 3c2.3.2 3.9 1.9 4.4 4.5Z"/><path d="M14.8 7.5c2.8-.5 4.2-2.7 4.4-4.5-2.3.2-3.9 1.9-4.4 4.5Z"/><path d="M9 12.5C6.4 12 5.2 10 5 8.4c2.1.2 3.4 1.6 4 4.1Z"/><path d="M15 12.5c2.6-.5 3.8-2.5 4-4.1-2.1.2-3.4 1.6-4 4.1Z"/><path d="M4 21h16"/></g>
+    <g id="i-wood"><path d="M8 3h8v18H8z"/><ellipse cx="12" cy="7.2" rx="2.6" ry="1.5"/><path d="M12 9.4v11.6"/></g>
+    <g id="i-salt"><path d="M5.5 16h13l-3-5h-7l-3 5Z"/><path d="M4 16v3h16v-3"/><path d="M8.5 10h.01M12 10h.01M15.5 10h.01"/></g>
+    <g id="i-iron"><path d="M5.5 15.5 9 5h6l2.5 10.5-3.5 3h-7l-1.5-3Z"/><path d="M16.8 7.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5.5-1.3Z"/><path d="M9 5v4M15 5v4"/></g>
+    <g id="i-hide"><path d="M6.5 4h11l1.8 7.5L16 19H8l-3.3-7.5L6.5 4Z"/><path d="M12 6v8M7.5 9.5h9"/></g>
+    <g id="i-tea"><path d="M12 20V10"/><path d="M12 10c-2.8-1-4.6-3.6-4.8-6 2.4.4 4.8 2.4 4.8 6Z"/><path d="M12 10c2.8-1 4.6-3.6 4.8-6-2.4.4-4.8 2.4-4.8 6Z"/><path d="M12 14.5c-2.2-.8-3.6-2.8-3.8-4.6 1.9.3 3.8 1.9 3.8 4.6Z"/></g>
+    <g id="i-silk"><path d="M6 4.5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M6 4.5c-2 .5-3 1.6-3 3.5s1 3 3 3.5"/></g>
+    <g id="i-spice"><path d="M9 3.5h6l1 3.2v11.3a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 18V6.7l1-3.2Z"/><path d="M8 8h8M8 12.5h8M10.5 14.5h3"/></g>
+    <g id="i-porcelain"><path d="M10.2 8h3.6l2 4.2a5.8 5.8 0 0 1-7.6 0l2-4.2Z"/><path d="M10.2 8V5h3.6v3"/><path d="M9.4 19h5.2"/><path d="M10.2 8l.8 4M13.8 8l-.8 4"/></g>
+    <g id="i-jewel"><path d="M7 4.5h10l3 5.5-8 9.5-8-9.5 3-5.5Z"/><path d="M4 10h16M9.5 4.5 7.5 10 12 19.5M14.5 4.5l2 5.5L12 19.5"/></g>
+    <g id="i-amber"><path d="M12 4.5c3.6 0 6.2 2.6 6.2 6 0 3.3-2.6 6-6.2 6s-6.2-2.7-6.2-6c0-3.4 2.6-6 6.2-6Z"/><circle cx="9.7" cy="10.8" r="1.1"/><circle cx="13.8" cy="13.6" r=".8"/><path d="M12 4.5c-2-1.4-4.4-1.7-6.8-1.1.9 3 2.6 4.9 5.4 6.1 2.8-1.2 4.5-3.1 5.4-6.1-2.4-.6-4.8-.3-6.8 1.1Z"/><path d="M6.5 20h11"/></g>
+  </defs>
+</svg>
+<img class="deco-ship" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M20 55h80l-8 14H28l-8-14Z' fill='%23d6b45a'/%3E%3Cpath d='M42 38h36l-6 10H48l-6-10Z' fill='%23d6b45a'/%3E%3Cpath d='M58 55V18h8l4 10 8 5-12 22' fill='none' stroke='%23d6b45a' stroke-width='2'/%3E%3Cpath d='M14 62h92' stroke='%23d6b45a' stroke-width='2'/%3E%3C/svg%3E" alt="">
+
+<!-- ===== 开场视图 ===== -->
+<section id="view-start" class="wrap">
+  <div class="title-wrap">
+    <svg class="compass" viewBox="0 0 64 64" fill="none" stroke="#d6b45a" stroke-width="2">
+      <circle cx="32" cy="32" r="29" stroke-opacity=".55"/><circle cx="32" cy="32" r="22" stroke-opacity=".35"/>
+      <path d="M32 7v10M32 47v10M7 32h10M47 32h10" stroke-opacity=".5"/>
+      <path d="M32 12 37 32l-5 20-5-20 5-20Z" fill="#d6b45a" fill-opacity=".25"/>
+      <path d="M32 18 34 32l-2 14-2-14 2-14Z" fill="#d6b45a" fill-opacity=".8"/>
+    </svg>
+    <h1 class="h1">低买高卖</h1>
+    <p class="sub">商 路 大 亨 · 十 二 站 商 道 之 旅</p>
+  </div>
+  <div class="start-cards">
+    <div class="scard"><b>12 回合</b><span>六城之间来回倒卖，回合结束自动结算</span></div>
+    <div class="scard"><b>目标 50,000</b><span>初始身家 10,000 金币，商道有成即胜利</span></div>
+    <div class="scard"><b>11 种货物</b><span>行情起伏极大：暴涨数倍于常价，暴跌可至个位数</span></div>
+    <div class="scard"><b>小道消息</b><span>并非每城都有，提及的货物本城必有售</span></div>
+  </div>
+  <div class="start-actions">
+    <button class="btn btn-gold btn-lg" id="btn-start">启 程 · 走 商 路</button>
+    <button class="btn btn-ghost" id="btn-lb-start">行商排行榜</button>
+    <button class="btn btn-ghost" id="btn-rules-start">商路手册（规则说明）</button>
+  </div>
+  <p class="rule-note">每抵达一座城，在售货物与价格都会刷新，偶尔会收到一条小道消息。<br>
+  小道消息称某货「即将涨价」，可真可假：下一城它可能大涨、可能大跌，也可能波澜不惊。信与不信，全凭商路眼光。</p>
+</section>
+
+<!-- ===== 游戏视图 ===== -->
+<section id="view-game" class="wrap hidden">
+  <header class="topbar">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c0-1.2-1.3-2-3-2s-3 .8-3 2 1 1.8 3 2.4 3 .9 3 2.1-1.3 2-3 2-3-.8-3-2"/></svg><span class="lab">金币</span><span class="val num" id="t-gold">0</span></div>
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 4v2h6V4M9 11l2 2 4-4M11 13l-2 2M13 15l-2 2"/></svg><span class="lab">回合</span><span class="val num" id="t-round">1/12</span></div>
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 12h6M9 16h4"/></svg><span class="lab">仓库</span><span class="val num" id="t-slots">0/100</span></div>
+    <div class="chip city"><span class="lab">当前城市</span><span class="cityname" id="t-city">—</span></div>
+    <a class="home-link" id="btn-home" href="javascript:void(0)">返回主界面</a>
+  </header>
+  <div class="goalbar">
+    <span class="gtext">目标身家 50,000 金币</span>
+    <div class="track"><div class="fill" id="goal-fill" style="width:0%"></div></div>
+    <span class="gval num" id="goal-val">0 / 50,000</span>
+  </div>
+
+  <div class="board">
+    <div class="col">
+      <div class="panel">
+        <h3><span class="seal">市集</span>本城行情<span id="city-desc" style="font-size:12px;color:#6b5636;font-weight:400;margin-left:auto"></span></h3>
+        <div class="qtyrow">
+          <span class="qtitle">批量买入/卖出数量</span>
+          <button class="qtybtn" data-q="1">×1</button>
+          <button class="qtybtn" data-q="10">×10</button>
+          <button class="qtybtn" data-q="100">×100</button>
+          <button class="qtybtn" data-q="0">最大</button>
+        </div>
+        <div class="market-grid" id="market"></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel">
+        <h3><span class="seal">仓廪</span>我的货舱<span id="cargo-count" style="font-size:12px;color:#6b5636;font-weight:400;margin-left:auto"></span></h3>
+        <div class="cargo-list" id="cargo"></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <h3><span class="seal">库房</span>仓库扩容</h3>
+        <p style="font-size:12.5px;color:#6b5636;margin-top:6px;line-height:1.6">前两次扩容各需 5,000 金币（+100 格），此后每次只需 1,000 金币（+100 格）。</p>
+        <button class="btn btn-dark" id="btn-expand" style="margin-top:10px;width:100%">扩容 +100 格 · 需 5,000 金币</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="intel">
+    <div class="panel">
+      <h3><span class="seal">传闻</span>小道消息</h3>
+      <div class="msg-today" id="msgs"></div>
+    </div>
+    <div class="panel">
+      <h3><span class="seal">行记</span>商路日志</h3>
+      <div class="loglist" id="loglist"></div>
+    </div>
+  </div>
+
+  <div class="panel actions">
+    <button class="btn btn-gold btn-lg" id="btn-move">前往下一城 · 耗 1 回合</button>
+    <button class="btn btn-ghost" id="btn-stay">停留一夜 · 等行情</button>
+  </div>
+</section>
+
+<!-- ===== 结算模态 ===== -->
+<div class="modal" id="modal-settle">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-settle">×</button>
+    <div class="modal-title">商路结算</div>
+    <div class="modal-sub">十二站商道走完，盘点身家</div>
+    <div class="settle-banner" id="s-banner">—</div>
+    <div class="rating"><span class="rchar" id="s-rating">B</span><span class="rname" id="s-rname">及格行商</span></div>
+    <div class="settle-stats">
+      <div class="sstat"><div class="k">最终总资产</div><div class="v num" id="s-assets">0</div></div>
+      <div class="sstat"><div class="k">净赚（较初始 10,000）</div><div class="v num" id="s-profit">0</div></div>
+      <div class="sstat"><div class="k">交易笔数</div><div class="v num" id="s-trades">0</div></div>
+      <div class="sstat"><div class="k">目标 50,000</div><div class="v" id="s-goal">未达成</div></div>
+    </div>
+    <div class="name-row">
+      <input id="s-name" maxlength="8" placeholder="留下名号（默认：无名行商）">
+      <button class="btn btn-gold" id="btn-save">留名上榜</button>
+    </div>
+    <div class="lb-title"><span class="seal">榜</span>行商排行榜</div>
+    <div class="lb-list" id="lb-settle"></div>
+    <div class="settle-btns">
+      <button class="btn btn-gold" id="btn-replay">再走一趟</button>
+      <button class="btn btn-ghost" id="btn-to-start">回到主界面</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 排行榜模态 ===== -->
+<div class="modal" id="modal-lb">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-lb">×</button>
+    <div class="modal-title">行商排行榜</div>
+    <div class="modal-sub">历代商路豪杰 · 按最终身家排定座次</div>
+    <div class="lb-list" id="lb-main"></div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-lb">关闭</button></div>
+  </div>
+</div>
+
+<!-- ===== 规则模态 ===== -->
+<div class="modal" id="modal-rules">
+  <div class="modal-in">
+    <button class="modal-close" data-close="modal-rules">×</button>
+    <div class="modal-title">商路手册</div>
+    <div class="modal-sub">玩法 · 行情 · 传闻 · 结算</div>
+    <div class="rule-sec">
+      <h4>玩法概览</h4>
+      <p>在 6 座城之间往来倒卖：在便宜处买入，去贵处卖出，赚取差价。初始身家 10,000 金币、仓库 100 格，共 12 回合，回合结束自动结算。目标：最终总资产达到 <b>50,000 金币</b>。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>货物与城市</h4>
+      <p>共 11 种货物，从几十金币的日用杂货，到数千金币的珍奇宝物。行情起伏极大：同一种货，可能暴涨数倍于常价，也可能暴跌到近乎白送（低价货甚至跌到个位数）。每座城各有<b>特产</b>（通常必在售、供货价偏低），其余货物价格随行情起伏；每城每次在售 6 种。此地贵贱与否，全凭商路经验与一路见闻判断。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>小道消息</h4>
+      <ul>
+        <li>小道消息<b>并非每城都有</b>；出现时声称某货「即将涨价」，传闻提到的货物<b>本城必有售</b>，可当场买入。传闻兑现三态：<span class="hl">约四成大幅涨价</span>（下一城落入高价带）、<span class="hl">约三成大幅降价</span>、<span class="hl">约三成无差别</span>。传闻未必为真，囤货前请三思。</li>
+        <li><b>折价甩卖</b>：货物若不在本城在售，本回合只能按 <span class="hl">购入价格的 85%</span> 折价卖出。把货运到有行情的城市，才能卖到正常价钱。</li>
+      </ul>
+    </div>
+    <div class="rule-sec">
+      <h4>仓库扩容</h4>
+      <p>起始 100 格。前两次扩容：各花 <b>5,000 金币</b> 得 +100 格；此后每次只需 <b>1,000 金币</b> 得 +100 格。</p>
+    </div>
+    <div class="rule-sec">
+      <h4>结算评级</h4>
+      <ul>
+        <li>总资产 ≥ 120,000：<b>S · 商界传奇</b></li>
+        <li>总资产 ≥ 80,000：<b>A · 资深大贾</b></li>
+        <li>总资产 ≥ 50,000：<b>B · 及格行商（达成目标）</b></li>
+        <li>总资产 &lt; 50,000：<b>C · 亏本旅人</b></li>
+      </ul>
+      <p style="margin-top:6px">结算后可将名号与成绩写入排行榜（本机保存）。</p>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-ghost" style="width:100%" data-close="modal-rules">知道了</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ 数据 ============ */
+const GOODS=[
+ {id:'wheat',name:'小麦',normal:[18,24],boom:[40,50],crash:[8,10]},
+ {id:'wood',name:'木材',normal:[28,38],boom:[60,85],crash:[12,16]},
+ {id:'salt',name:'盐',normal:[45,60],boom:[100,135],crash:[20,26]},
+ {id:'iron',name:'铁矿石',normal:[80,110],boom:[180,245],crash:[35,48]},
+ {id:'hide',name:'兽皮',normal:[110,150],boom:[250,340],crash:[48,65]},
+ {id:'tea',name:'茶叶',normal:[160,220],boom:[380,500],crash:[70,95]},
+ {id:'silk',name:'丝绸',normal:[280,380],boom:[650,850],crash:[120,165]},
+ {id:'spice',name:'香料',normal:[420,580],boom:[1000,1350],crash:[180,250]},
+ {id:'porcelain',name:'瓷器',normal:[750,1000],boom:[1800,2400],crash:[320,430]},
+ {id:'jewel',name:'珠宝',normal:[4000,7000],boom:[12000,16000],crash:[1700,3000]},
+ {id:'amber',name:'琥珀',normal:[4000,7000],boom:[12000,16000],crash:[1700,3000]}
+];
+const CITIES=[
+ {name:'青石镇',desc:'麦浪林场的农产小镇',specials:['wheat','wood','salt']},
+ {name:'铁炉城',desc:'炉火通明的矿冶重镇',specials:['iron','wood']},
+ {name:'兽皮谷',desc:'猎户皮商的边陲谷地',specials:['hide']},
+ {name:'云雾茶城',desc:'云雾缭绕的茶乡山城',specials:['tea']},
+ {name:'丝锦城',desc:'机杼声声的织造名城',specials:['silk','salt']},
+ {name:'明珠港',desc:'万国商船云集的繁华大港',specials:['spice','porcelain','jewel','amber']}
+];
+const GOAL=50000, ROUNDS=12, INIT_GOLD=10000, INIT_SLOTS=100;
+const LB_KEY='lbmx_lb_v1';
+const byId=id=>GOODS.find(g=>g.id===id);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const randInt=n=>Math.floor(Math.random()*n);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const fmt=n=>Math.round(n).toLocaleString('zh-CN');
+const esc=s=>String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ============ 状态 ============ */
+let S=null;
+
+function newGame(){
+  S={
+    gold:INIT_GOLD, slots:INIT_SLOTS, expCount:0, round:1,
+    city:randInt(CITIES.length),
+    cargo:{}, cost:{},
+    market:[], rumor:null, today:{rumor:null},
+    log:[], trades:0, mult:10
+  };
+  genMarket();
+  genRumor();
+  log('sys','商路开启，抵达「'+CITIES[S.city].name+'」。目标：12 回合内身家达 50,000 金币。');
+  renderAll();
+  showView('game');
+}
+
+/* ============ 行情与消息 ============ */
+// 行情三态：平时 / 暴涨 / 暴跌。12% 暴涨、12% 暴跌、其余平时；特产固定落于平时价带下沿
+function genMarket(){
+  const c=CITIES[S.city];
+  const others=GOODS.map(g=>g.id).filter(id=>!c.specials.includes(id));
+  shuffle(others);
+  const inSale=[...c.specials,...others.slice(0,6-c.specials.length)];
+  S.market=inSale.map(id=>{
+    const g=byId(id);
+    const isSpec=c.specials.includes(id);
+    let price;
+    if(isSpec){
+      price=rand(g.normal[0],(g.normal[0]+g.normal[1])/2);
+    }else{
+      const r=Math.random();
+      if(r<0.12) price=rand(g.boom[0],g.boom[1]);       // 大幅涨价
+      else if(r<0.24) price=rand(g.crash[0],g.crash[1]); // 大幅降价
+      else price=rand(g.normal[0],g.normal[1]);          // 平时
+    }
+    if(S.rumor && S.rumor.goodId===id && !S.rumor.applied){
+      // 传闻兑现：大涨落入高价带、大跌落入低价带、无差别则照常
+      if(S.rumor.kind==='boom') price=rand(g.boom[0],g.boom[1]);
+      else if(S.rumor.kind==='crash') price=rand(g.crash[0],g.crash[1]);
+      S.rumor.applied=true;
+    }
+    price=Math.max(1,Math.round(price));
+    return {id,price,special:isSpec};
+  });
+}
+function genRumor(){
+  // 小道消息并非每城都有（约六成概率出现）
+  if(Math.random()>=0.6){ S.rumor=null; S.today.rumor=null; return; }
+  // 传闻商品必从本城在售商品中挑选，保证听到传闻时当下就能买入
+  const m=S.market[randInt(S.market.length)];
+  const g=byId(m.id);
+  // 传闻结果三态：四成大幅涨价、三成大幅降价、三成无差别
+  const r=Math.random();
+  const kind=r<0.4?'boom':r<0.7?'crash':'flat';
+  S.rumor={goodId:g.id,kind,applied:false,window:2};
+  S.today.rumor={id:g.id,kind};
+  log('rm','【小道消息】据可靠线人透露，「'+g.name+'」近期即将涨价！');
+}
+function log(type,text){S.log.unshift({type,text,round:S.round});if(S.log.length>120)S.log.pop()}
+
+/* ============ 交易 ============ */
+function cargoQty(){return Object.values(S.cargo).reduce((a,b)=>a+b,0)}
+// 本城在售按市价；本城无市则只能按购入成本的 85% 折价甩卖
+function unitPrice(id){
+  const m=S.market.find(x=>x.id===id);
+  if(m) return m.price;
+  const held=S.cargo[id]||0;
+  if(held>0&&S.cost[id]) return Math.max(1,Math.round(S.cost[id]/held*0.85));
+  const g=byId(id);
+  return Math.max(1,Math.round((g.normal[0]+g.normal[1])/2*0.85));
+}
+function assetValue(){
+  let v=S.gold;
+  for(const id in S.cargo){
+    v+=S.cargo[id]*unitPrice(id);
+  }
+  return v;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1900);
+}
+function buy(id){
+  const m=S.market.find(x=>x.id===id); if(!m) return;
+  const g=byId(id);
+  const free=S.slots-cargoQty();
+  const byGold=Math.floor(S.gold/m.price);
+  let q=Math.min(S.mult,byGold,free);
+  if(q<=0){toast(free<=0?'货舱已满，请先扩容或卖出':'金币不足，买不起');return}
+  S.gold-=q*m.price;
+  S.cargo[id]=(S.cargo[id]||0)+q;
+  S.cost[id]=(S.cost[id]||0)+q*m.price;
+  S.trades++;
+  toast('购入 '+g.name+' ×'+q);
+  renderAll();
+}
+function sell(id){
+  const held=S.cargo[id]||0; if(!held){toast('没有可卖的货');return}
+  const g=byId(id);
+  const m=S.market.find(x=>x.id===id);
+  const price=unitPrice(id);
+  const q=Math.min(S.mult,held);
+  const avg=S.cost[id]/held;
+  S.gold+=q*price;
+  S.cargo[id]-=q;
+  if(!S.cargo[id]){delete S.cargo[id];delete S.cost[id]}
+  S.trades++;
+  if(m) toast('售出 '+g.name+' ×'+q);
+  else toast('本城无市，'+g.name+' 按购入价 85% 甩卖 ×'+q);
+  renderAll();
+}
+function expand(){
+  const cost=S.expCount<2?5000:1000;
+  if(S.gold<cost){toast('金币不足，无法扩容');return}
+  S.gold-=cost; S.slots+=100; S.expCount++;
+  log('sys','仓库扩容至 '+S.slots+' 格，花费 '+fmt(cost)+' 金币。');
+  toast('仓库已扩容至 '+S.slots+' 格');
+  renderAll();
+}
+
+/* ============ 回合推进 ============ */
+function advance(stay){
+  if(S.round>=ROUNDS){settle();return}
+  S.round++;
+  if(!stay){
+    const n=randInt(CITIES.length-1);
+    S.city = n>=S.city? n+1 : n;
+  }
+  if(S.rumor){S.rumor.window--; if(S.rumor.window<=0||S.rumor.applied) S.rumor=null}
+  genMarket();
+  genRumor();
+  if(stay) log('sys','于「'+CITIES[S.city].name+'」停留一夜，行情刷新。');
+  else log('sys','抵达「'+CITIES[S.city].name+'」。');
+  renderAll();
+  if(S.round>=ROUNDS) toast('最后一回合！交易完毕即可点击结算。');
+}
+function ratingOf(v){return v>=120000?'S':v>=80000?'A':v>=50000?'B':'C'}
+const RATING_NAME={S:'商界传奇',A:'资深大贾',B:'及格行商',C:'亏本旅人'};
+function settle(){
+  const val=assetValue();
+  S.final={
+    val, profit:val-INIT_GOLD, win:val>=GOAL,
+    rating:ratingOf(val), trades:S.trades
+  };
+  showSettlement();
+}
+function saveScore(){
+  const raw=document.getElementById('s-name').value;
+  const name=esc(raw.replace(/[<>&"']/g,'').trim().slice(0,8))||'无名行商';
+  const lb=loadLB();
+  const entry={name,score:S.final.val,rating:S.final.rating,trades:S.final.trades,date:new Date().toLocaleDateString('zh-CN')};
+  lb.push(entry);
+  lb.sort((a,b)=>b.score-a.score);
+  localStorage.setItem(LB_KEY,JSON.stringify(lb.slice(0,50)));
+  renderLB(lb,entry);
+}
+
+/* ============ 排行榜 ============ */
+function loadLB(){
+  try{const d=JSON.parse(localStorage.getItem(LB_KEY));return Array.isArray(d)?d:[]}catch(e){return[]}
+}
+function renderLB(lb,me){
+  const box=document.getElementById('lb-settle');
+  const top=lb.slice(0,10);
+  if(!top.length){box.innerHTML='<div class="lb-empty">榜上无名，等第一位行商留名。</div>';return}
+  box.innerHTML=top.map((e,i)=>{
+    const isMe=me&&e===me;
+    const r=i===0?'top':i<3?'top':'';
+    return '<div class="lb-row'+(isMe?' me':'')+'"><span class="lb-rank '+r+'">'+(i+1)+'</span>'+
+      '<span class="lb-name">'+e.name+'</span>'+
+      '<span class="lb-score num">'+fmt(e.score)+'</span>'+
+      '<span class="lb-meta">'+e.rating+' 级<br>'+e.date+'</span></div>';
+  }).join('');
+}
+
+/* ============ 渲染 ============ */
+function iconSVG(id){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#i-'+id+'" xlink:href="#i-'+id+'"/></svg>'}
+function renderTop(){
+  document.getElementById('t-gold').textContent=fmt(S.gold);
+  document.getElementById('t-round').textContent=S.round+' / '+ROUNDS;
+  document.getElementById('t-slots').textContent=cargoQty()+' / '+S.slots;
+  document.getElementById('t-city').textContent=CITIES[S.city].name;
+  document.getElementById('city-desc').textContent='· '+CITIES[S.city].desc;
+  const av=assetValue();
+  document.getElementById('goal-val').textContent=fmt(av)+' / '+fmt(GOAL);
+  document.getElementById('goal-fill').style.width=Math.min(100,av/GOAL*100)+'%';
+  document.getElementById('cargo-count').textContent='· 占用 '+cargoQty()+' / '+S.slots+' 格';
+}
+function renderMarket(){
+  const box=document.getElementById('market');
+  box.innerHTML=S.market.map(m=>{
+    const g=byId(m.id);
+    return '<div class="good-card">'+
+      '<div class="good-head"><span class="good-icon">'+iconSVG(m.id)+'</span><span class="good-name">'+g.name+'</span></div>'+
+      '<div class="good-price"><span class="p num">'+fmt(m.price)+'</span><span class="c">金币/件</span></div>'+
+      '<div class="good-act"><button class="btn btn-gold" onclick="buy(\''+m.id+'\')">买入</button></div>'+
+      '</div>';
+  }).join('');
+}
+function renderCargo(){
+  const box=document.getElementById('cargo');
+  const ids=Object.keys(S.cargo);
+  if(!ids.length){box.innerHTML='<div class="cargo-empty">货舱空空。<br>在左侧市集挑便宜的货物买入，到贵的地方卖出。</div>';return}
+  box.innerHTML=ids.map(id=>{
+    const g=byId(id); const held=S.cargo[id]; const avg=S.cost[id]/held;
+    const m=S.market.find(x=>x.id===id);
+    const p=unitPrice(id);
+    const pl=Math.round((p-avg)*held);
+    const plCls=pl>0?'pos':pl<0?'neg':'';
+    const plTxt=pl>0?'盈 +'+fmt(pl):pl<0?'亏 -'+fmt(-pl):'平';
+    const offTag=m? '':'<span class="offtag">本城无市 · 按购入价 85% 甩卖</span>';
+    return '<div class="cargo-row">'+
+      '<span class="good-icon">'+iconSVG(id)+'</span>'+
+      '<span class="cargo-info"><span class="n">'+g.name+offTag+'</span><br><span class="d">成本 '+fmt(Math.round(avg))+' · 现价 '+fmt(p)+'</span></span>'+
+      '<span class="cargo-num num">×'+held+'</span>'+
+      '<span class="pl '+plCls+'">'+plTxt+'</span>'+
+      '<button class="btn btn-dark" onclick="sell(\''+id+'\')">卖出</button>'+
+      '</div>';
+  }).join('');
+}
+function renderMsgs(){
+  const box=document.getElementById('msgs');
+  const r=S.today.rumor;
+  if(!r){
+    box.innerHTML='<div class="msg-card msg-rumor" style="opacity:.6"><span class="msg-tag">飞鸽传书</span>今日无线索，行情风平浪静。<span class="rumor-note">※ 没有可依仗的传闻，全凭自己眼光。</span></div>';
+    return;
+  }
+  box.innerHTML='<div class="msg-card msg-rumor"><span class="msg-tag">飞鸽传书</span>据可靠线人透露，<b>'+byId(r.id).name+'</b> 近期即将涨价！<span class="rumor-note">※ 小道消息未必为真，当真与否全凭商路眼光。</span></div>';
+}
+function renderLog(){
+  document.getElementById('loglist').innerHTML=S.log.map(e=>
+    '<div class="log-item '+e.type+'"><span class="r">第'+e.round+'站</span>'+esc(e.text)+'</div>'
+  ).join('');
+}
+function renderActions(){
+  const move=document.getElementById('btn-move');
+  const stay=document.getElementById('btn-stay');
+  if(S.round>=ROUNDS){
+    move.textContent='结束商路 · 自动结算';
+    move.classList.add('settle');
+    stay.style.display='none';
+  }else{
+    move.textContent='前往下一城 · 耗 1 回合';
+    move.classList.remove('settle');
+    stay.style.display='';
+  }
+  const cost=S.expCount<2?5000:1000;
+  const b=document.getElementById('btn-expand');
+  b.textContent='扩容 +100 格 · 需 '+fmt(cost)+' 金币';
+  b.disabled=S.gold<cost;
+  document.querySelectorAll('.qtybtn').forEach(el=>el.classList.toggle('on',Number(el.dataset.q)===S.mult||(Number(el.dataset.q)===0&&S.mult===999999)));
+}
+function renderAll(){renderTop();renderMarket();renderCargo();renderMsgs();renderLog();renderActions()}
+
+/* ============ 视图与模态 ============ */
+function showView(v){
+  document.getElementById('view-start').classList.toggle('hidden',v!=='start');
+  document.getElementById('view-game').classList.toggle('hidden',v!=='game');
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showSettlement(){
+  const f=S.final;
+  document.getElementById('s-banner').textContent=f.win?'达成目标 · 商道有成':'未及目标 · 仍需历练';
+  document.getElementById('s-banner').className='settle-banner '+(f.win?'settle-win':'settle-lose');
+  document.getElementById('s-rating').textContent=f.rating;
+  document.getElementById('s-rname').textContent=RATING_NAME[f.rating]+'（评级 '+f.rating+'）';
+  document.getElementById('s-assets').textContent=fmt(f.val);
+  document.getElementById('s-profit').textContent=(f.profit>=0?'+':'')+fmt(f.profit);
+  document.getElementById('s-trades').textContent=f.trades;
+  document.getElementById('s-goal').textContent=f.win?'已达成':'未达成';
+  document.getElementById('s-name').value='';
+  renderLB(loadLB(),null);
+  openModal('modal-settle');
+}
+
+/* ============ 事件绑定 ============ */
+document.getElementById('btn-start').addEventListener('click',newGame);
+document.getElementById('btn-replay').addEventListener('click',()=>{closeModal('modal-settle');newGame()});
+document.getElementById('btn-to-start').addEventListener('click',()=>{closeModal('modal-settle');showView('start')});
+document.getElementById('btn-home').addEventListener('click',()=>{closeModal('modal-settle');showView('start')});
+document.getElementById('btn-lb-start').addEventListener('click',()=>{renderLB(loadLB(),null);openModal('modal-lb')});
+document.getElementById('btn-rules-start').addEventListener('click',()=>openModal('modal-rules'));
+document.getElementById('btn-expand').addEventListener('click',expand);
+document.getElementById('btn-move').addEventListener('click',()=>advance(false));
+document.getElementById('btn-stay').addEventListener('click',()=>advance(true));
+document.getElementById('btn-save').addEventListener('click',saveScore);
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+document.querySelectorAll('.qtybtn').forEach(b=>b.addEventListener('click',()=>{
+  const q=Number(b.dataset.q);
+  S.mult=q===0?999999:q;
+  document.querySelectorAll('.qtybtn').forEach(el=>el.classList.toggle('on',el===b));
+}));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{
+  if(e.target===m) closeModal(m.id);
+}));
+newGame();
+setTimeout(()=>{
+  // 场景1：单批 盐×100 @22，无市 → 折价 = 22×0.85 = 19
+  S.gold=7800; S.cargo.salt=100; S.cost.salt=2200;
+  let city1=-1;
+  for(let i=0;i<CITIES.length;i++){ S.city=i; genMarket(); if(!S.market.some(m=>m.id==='salt')){ city1=i; break; } }
+  const p1=unitPrice('salt');
+  // 场景2：两批混合成本（100@22 + 10@30 → avg 22.7）无市 → 22.7×0.85=19.3→19
+  S.cargo.salt=110; S.cost.salt=2500;
+  const p2=unitPrice('salt');
+  // 场景3：在售时仍取市价（不回退）
+  const city3=CITIES.findIndex((c,i)=>i!==S.city);
+  S.city=city3; genMarket(); S.cargo.wood=50; S.cost.wood=1500;
+  let p3=-1; if(S.market.some(m=>m.id==='wood')) p3=unitPrice('wood');
+  document.title='P1='+p1+'|EXP1=19|OK1='+(p1===19)+' P2='+p2+'|EXP2=19|OK2='+(p2===19)+' P3='+p3+'|OK3='+(S.market.some(m=>m.id==='wood')&&p3>=1);
+}, 150);
+</script>
+</body>
+</html>
